@@ -225,3 +225,20 @@
     max-width: 80rem;
   }
 }
+
+
+.lesgo-affiliation-logo {
+  display: flex;
+  justify-content: center;
+  margin: 1.2rem 0 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--lesgo-line);
+}
+
+.lesgo-affiliation-logo img {
+  display: block;
+  width: 13.75rem;
+  max-width: 58%;
+  height: auto;
+  opacity: 0.92;
+}

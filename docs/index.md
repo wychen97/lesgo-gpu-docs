@@ -25,3 +25,7 @@
 | Review GPU/MPI architecture | [GPU Architecture](gpu/architecture/) |
 | View benchmark plots | [Validation And Performance](gpu/validation-performance/) |
 | Inspect every Fortran file | [File-By-File GPU Audit](gpu/file-audit/) |
+
+<div class="lesgo-affiliation-logo">
+  <img src="assets/rosei-logo-footer.png" alt="Johns Hopkins Ralph O'Connor Sustainable Energy Institute" width="220">
+</div>
