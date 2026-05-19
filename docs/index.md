@@ -27,5 +27,5 @@
 | Inspect every Fortran file | [File-By-File GPU Audit](gpu/file-audit/) |
 
 <div class="lesgo-affiliation-logo">
-  <img src="assets/rosei-logo-horizontal-blue.png" alt="Johns Hopkins Ralph O'Connor Sustainable Energy Institute">
+  <img src="assets/rosei-logo-footer.png" alt="Johns Hopkins Ralph O'Connor Sustainable Energy Institute" width="220">
 </div>
