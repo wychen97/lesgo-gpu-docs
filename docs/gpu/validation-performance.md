@@ -12,7 +12,7 @@ This page is the short no-I/O verification case for the actuator turbine model a
 | Output policy | Heavy domain/plane output disabled for timing runs |
 | CPU sweep | 24, 40, 60, 80, 120 MPI ranks; 3 steps |
 | GPU timing | A100 runs, average of steps 2-10 |
-| GPU configurations | 1, 2, and 4 GPU launch files supported; measured A100 results currently shown for 1 and 2 GPUs |
+| GPU configurations | 1 GPU / 1 MPI and 2 GPUs / 2 MPI measured on same-node A100 runs |
 
 ## Runtime Summary
 
@@ -27,7 +27,7 @@ This page is the short no-I/O verification case for the actuator turbine model a
 </div>
 
 <div class="lesgo-image-frame">
-  <img src="../../assets/benchmark-480-gpu-scaling.svg" alt="GPU scaling chart for the 480 workload">
+  <img src="../../assets/benchmark-480-gpu-scaling-2gpu.svg" alt="GPU scaling chart for the 480 workload">
 </div>
 
 ## CPU Sweep
@@ -41,7 +41,7 @@ The CPU baseline is selected from this short rank sweep.
 ## Module Breakdown
 
 <div class="lesgo-image-frame">
-  <img src="../../assets/benchmark-480-module-breakdown.svg" alt="CPU and GPU module timing breakdown for the 480 workload">
+  <img src="../../assets/benchmark-480-module-breakdown-2gpu.svg" alt="CPU and GPU module timing breakdown for the 480 workload">
 </div>
 
 ## Flow-Field Verification
@@ -75,4 +75,3 @@ qsub job_compare_gpu1_noio.pbs
 qsub job_compare_gpu2_noio.pbs
 ```
 
-For the optional four-GPU run, use the same comparison script with `gpu 4 4` once an A100 four-GPU allocation is available.
