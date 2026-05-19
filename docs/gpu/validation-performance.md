@@ -21,7 +21,6 @@ This page is the short no-I/O verification case for the actuator turbine model a
 | Best CPU | `0.634 s/step` | `1.0x` | 120 MPI ranks |
 | 1 GPU / 1 MPI | `0.103 s/step` | `6.1x` | A100, optimized default path |
 | 2 GPUs / 2 MPI | `0.061 s/step` | `10.4x` | Same-node A100 run |
-| 4 GPUs / 4 MPI | pending | pending | Launch configuration prepared; excluded until a clean A100 run is collected |
 
 <div class="lesgo-image-frame">
   <img src="../../assets/benchmark-480-step-times.svg" alt="480x240x240 step time over iterations">

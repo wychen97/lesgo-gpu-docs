@@ -37,13 +37,6 @@
       "label": "2 GPUs / 2 MPI",
       "step_s": 0.06100145,
       "measured": true
-    },
-    {
-      "gpus": 4,
-      "mpi": 4,
-      "label": "4 GPUs / 4 MPI",
-      "step_s": null,
-      "measured": false
     }
   ],
   "flow_field": {

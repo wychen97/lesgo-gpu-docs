@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 430" role="img" aria-labelledby="title desc">
 <title id="title">GPU configuration scaling</title>
-<desc id="desc">Measured A100 GPU step times for one and two GPUs; four GPU configuration is prepared but not yet included in the measured comparison.</desc>
-<style>.title{font:800 24px system-ui,sans-serif;fill:#172033}.sub{font:500 14px system-ui,sans-serif;fill:#64748b}.axis{font:600 12px system-ui,sans-serif;fill:#64748b}.label{font:700 13px system-ui,sans-serif;fill:#172033}.note{font:700 12px system-ui,sans-serif;fill:#64748b}</style>
+<desc id="desc">Measured A100 GPU step times for one and two GPUs.</desc>
+<style>.title{font:800 24px system-ui,sans-serif;fill:#172033}.sub{font:500 14px system-ui,sans-serif;fill:#64748b}.axis{font:600 12px system-ui,sans-serif;fill:#64748b}.label{font:700 13px system-ui,sans-serif;fill:#172033}</style>
 <rect fill="#fff" width="820" height="430" rx="16"/>
 <text x="70" y="30" class="title">GPU configurations, 480x240x240</text>
-<text x="70" y="54" class="sub">Measured A100 points are solid; the 4-GPU slot is configured but left unfilled until an A100 run is captured.</text>
+<text x="70" y="54" class="sub">Measured A100 points only; larger GPU-count tests are omitted for this coarse-mesh comparison.</text>
 <line x1="82" y1="354.0" x2="764" y2="354.0" stroke="#e5edf7"/>
 <text x="70" y="358.0" text-anchor="end" class="axis">0.00</text>
 <line x1="82" y1="284.5" x2="764" y2="284.5" stroke="#e5edf7"/>
@@ -17,19 +17,13 @@
 <text x="70" y="80.0" text-anchor="end" class="axis">0.12</text>
 <line x1="82.0" y1="76" x2="82.0" y2="354" stroke="#f1f5f9"/>
 <text x="82.0" y="388" text-anchor="middle" class="axis">1</text>
-<line x1="309.3" y1="76" x2="309.3" y2="354" stroke="#f1f5f9"/>
-<text x="309.3" y="388" text-anchor="middle" class="axis">2</text>
-<line x1="536.7" y1="76" x2="536.7" y2="354" stroke="#f1f5f9"/>
-<text x="536.7" y="388" text-anchor="middle" class="axis">3</text>
 <line x1="764.0" y1="76" x2="764.0" y2="354" stroke="#f1f5f9"/>
-<text x="764.0" y="388" text-anchor="middle" class="axis">4</text>
-<polyline points="82.0,114.5 309.3,212.7" fill="none" stroke="#059669" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="764.0" y="388" text-anchor="middle" class="axis">2</text>
+<polyline points="82.0,114.5 764.0,212.7" fill="none" stroke="#059669" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
 <circle cx="82.0" cy="114.5" r="7" fill="#059669" stroke="#fff" stroke-width="2"/>
 <text x="82.0" y="100.5" text-anchor="middle" class="label">0.103s</text>
-<circle cx="309.3" cy="212.7" r="7" fill="#059669" stroke="#fff" stroke-width="2"/>
-<text x="309.3" y="198.7" text-anchor="middle" class="label">0.061s</text>
-<circle cx="764.0" cy="215.0" r="8" fill="#fff" stroke="#94a3b8" stroke-width="3" stroke-dasharray="4 4"/>
-<text x="764.0" y="199.0" text-anchor="middle" class="note">configured</text>
+<circle cx="764.0" cy="212.7" r="7" fill="#059669" stroke="#fff" stroke-width="2"/>
+<text x="764.0" y="198.7" text-anchor="middle" class="label">0.061s</text>
 <text x="423.0" y="416" text-anchor="middle" class="axis">A100 GPUs / MPI ranks</text>
 <text x="22" y="215.0" text-anchor="middle" transform="rotate(-90 22 215.0)" class="axis">seconds / step</text>
 </svg>
