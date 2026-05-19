@@ -6,7 +6,11 @@ repo_name: wychen97/lesgo-gpu-docs
 
 docs_dir: docs
 
+extra_css:
+  - stylesheets/extra.css
+
 nav:
+  - Home: index.md
   - GPU Migration Guide:
       - Overview: gpu/index.md
       - Main Timestep Flow: gpu/main-flow.md

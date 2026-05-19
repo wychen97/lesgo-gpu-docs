@@ -1,0 +1,165 @@
+:root {
+  --lesgo-ink: #172033;
+  --lesgo-muted: #5c667a;
+  --lesgo-blue: #2563eb;
+  --lesgo-cyan: #0891b2;
+  --lesgo-green: #059669;
+  --lesgo-amber: #d97706;
+  --lesgo-panel: #f8fafc;
+  --lesgo-line: #dbe4f0;
+}
+
+.md-typeset {
+  font-size: 0.78rem;
+  line-height: 1.68;
+}
+
+.md-typeset h1 {
+  color: var(--lesgo-ink);
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 0.7rem;
+}
+
+.md-typeset h2 {
+  color: var(--lesgo-ink);
+  font-weight: 750;
+  letter-spacing: 0;
+  margin-top: 2.0rem;
+}
+
+.md-typeset h3 {
+  color: #24304a;
+  font-weight: 700;
+}
+
+.md-typeset p, .md-typeset li {
+  color: #263247;
+}
+
+.md-typeset table:not([class]) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.md-typeset table:not([class]) th {
+  background: #eef4ff;
+  color: #172033;
+  font-weight: 700;
+}
+
+.md-typeset table:not([class]) td {
+  vertical-align: top;
+}
+
+.lesgo-hero {
+  display: grid;
+  gap: 1.1rem;
+  padding: 2.1rem;
+  border: 1px solid var(--lesgo-line);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f7fbff 0%, #eef7f6 100%);
+  margin: 0.6rem 0 1.5rem;
+}
+
+.lesgo-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.02;
+}
+
+.lesgo-hero p {
+  max-width: 54rem;
+  margin: 0;
+  color: var(--lesgo-muted);
+  font-size: 1.02rem;
+}
+
+.lesgo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.lesgo-button {
+  display: inline-block;
+  padding: 0.62rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  background: #ffffff;
+  color: #1d4ed8 !important;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+
+.lesgo-button.primary {
+  background: #1d4ed8;
+  color: #ffffff !important;
+  border-color: #1d4ed8;
+}
+
+.lesgo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.9rem;
+  margin: 1rem 0 1.4rem;
+}
+
+.lesgo-card {
+  border: 1px solid var(--lesgo-line);
+  border-radius: 10px;
+  padding: 1rem;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.lesgo-card strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--lesgo-ink);
+  font-size: 0.92rem;
+}
+
+.lesgo-card span {
+  color: var(--lesgo-muted);
+}
+
+.lesgo-callout {
+  border-left: 4px solid var(--lesgo-blue);
+  background: #f8fbff;
+  padding: 0.9rem 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+}
+
+.lesgo-status {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #065f46;
+  background: #d1fae5;
+  vertical-align: middle;
+}
+
+.lesgo-image-frame {
+  border: 1px solid var(--lesgo-line);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: #ffffff;
+  margin: 1rem 0 1.5rem;
+}
+
+.lesgo-image-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-grid {
+    max-width: 78rem;
+  }
+}

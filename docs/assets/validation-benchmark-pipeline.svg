@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 430" role="img" aria-labelledby="title desc">
+  <title id="title">LESGO validation and benchmark workflow</title>
+  <desc id="desc">A workflow separating correctness smoke tests from final CPU/GPU benchmark comparisons.</desc>
+  <defs>
+    <style>
+      .bg{fill:#f8fafc}.panel{fill:#fff;stroke:#d8e2ef;stroke-width:2}.title{font:700 26px system-ui,Segoe UI,sans-serif;fill:#172033}.label{font:700 18px system-ui,Segoe UI,sans-serif;fill:#1f2a44}.text{font:500 15px system-ui,Segoe UI,sans-serif;fill:#5c667a}.small{font:600 13px system-ui,Segoe UI,sans-serif;fill:#64748b}.blue{fill:#2563eb}.cyan{fill:#0891b2}.green{fill:#059669}.amber{fill:#d97706}.line{stroke:#91a4bd;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#91a4bd"/></marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1180" height="430" rx="20"/>
+  <text class="title" x="42" y="52">Validation is not the same as benchmarking</text>
+  <text class="text" x="42" y="80">Smoke tests protect correctness after code changes. Final performance claims require a locked grid, same modules, same I/O policy, and a CPU core sweep.</text>
+
+  <rect class="panel" x="42" y="124" width="220" height="180" rx="14"/>
+  <circle class="blue" cx="72" cy="156" r="13"/><text class="label" x="96" y="162">1. Lock case</text>
+  <text class="text" x="68" y="198">Grid size</text><text class="text" x="68" y="224">CMake options</text><text class="text" x="68" y="250">lesgo.conf</text><text class="text" x="68" y="276">I/O policy</text>
+
+  <path class="line" d="M 272 214 H 345"/>
+  <rect class="panel" x="355" y="124" width="220" height="180" rx="14"/>
+  <circle class="cyan" cx="385" cy="156" r="13"/><text class="label" x="409" y="162">2. Validate</text>
+  <text class="text" x="381" y="198">Divergence</text><text class="text" x="381" y="224">Kinetic energy</text><text class="text" x="381" y="250">Wall stress</text><text class="text" x="381" y="276">Force sums</text>
+
+  <path class="line" d="M 585 214 H 658"/>
+  <rect class="panel" x="668" y="124" width="220" height="180" rx="14"/>
+  <circle class="amber" cx="698" cy="156" r="13"/><text class="label" x="722" y="162">3. CPU sweep</text>
+  <text class="text" x="694" y="198">Same executable mode</text><text class="text" x="694" y="224">Core-count search</text><text class="text" x="694" y="250">No-I/O timing</text><text class="text" x="694" y="276">Best CPU baseline</text>
+
+  <path class="line" d="M 898 214 H 971"/>
+  <rect class="panel" x="981" y="124" width="157" height="180" rx="14"/>
+  <circle class="green" cx="1011" cy="156" r="13"/><text class="label" x="1035" y="162">4. Report</text>
+  <text class="text" x="1007" y="198">CPU vs GPU</text><text class="text" x="1007" y="224">Module table</text><text class="text" x="1007" y="250">Speedups</text><text class="text" x="1007" y="276">Plots</text>
+
+  <rect x="42" y="342" width="1096" height="44" rx="10" fill="#eaf2ff" stroke="#bfdbfe"/>
+  <text class="small" x="68" y="370">Current documentation shows smoke-validation values only. The final benchmark table should be filled after the grid and CPU baseline are fixed.</text>
+</svg>

@@ -1,8 +1,18 @@
-# LESGO GPU Migration Guide
+<div class="lesgo-hero">
+  <h1>GPU Migration Overview</h1>
+  <p>This guide is for developers who already know CPU LESGO and need to understand the CUDA Fortran, cuFFT, and GPU-aware MPI changes quickly.</p>
+  <div class="lesgo-actions">
+    <a class="lesgo-button primary" href="main-flow/">Main Flow</a>
+    <a class="lesgo-button" href="architecture/">Architecture</a>
+    <a class="lesgo-button" href="file-audit/">File Audit</a>
+  </div>
+</div>
 
-This documentation is an engineering handoff for the GPU-enabled LESGO branch in this repository. It is written for developers who already understand the original CPU LESGO code and need to understand what changed, where the GPU paths live, how the MPI/GPU ownership works, and how to modify the code without breaking validated behavior.
-
-The official target is FP64. The production path assumes CUDA Fortran with NVHPC, CUDA-aware MPI, and the current z-slab MPI decomposition. Most GPU paths are enabled by default after validation. Remaining environment switches are limited to core fallbacks, timing checkpoints, and validation aids.
+<div class="lesgo-grid">
+  <div class="lesgo-card"><strong>Production GPU path</strong><span>Validated GPU implementations are enabled by default.</span></div>
+  <div class="lesgo-card"><strong>Conservative numerics</strong><span>The migration preserves LESGO's equations and timestep ordering.</span></div>
+  <div class="lesgo-card"><strong>Small debug surface</strong><span>Only core fallback and timing checkpoints remain.</span></div>
+</div>
 
 ## What This Guide Covers
 
@@ -11,9 +21,8 @@ The official target is FP64. The production path assumes CUDA Fortran with NVHPC
 | Main timestep ownership and timings | [Main Timestep Flow](main-flow.md) |
 | GPU memory, synchronization, and MPI rules | [GPU Architecture](architecture.md) |
 | Derecho build and runtime controls | [Build And Runtime](build-runtime.md) |
-| Correctness checks and performance baselines | [Validation And Performance](validation-performance.md) |
+| Correctness checks and benchmark policy | [Validation And Performance](validation-performance.md) |
 | How to safely edit GPU kernels | [Developer Guide](developer-guide.md) |
-| Detailed module migration notes | [Module Notes](modules/core-solver.md) |
 | Generated 75-file audit matrix | [File Audit](file-audit.md) |
 
 ## Current Default Philosophy
@@ -24,23 +33,9 @@ The remaining GPU checkpoint count is intentionally small: 17 LESGO-owned GPU en
 
 ## How To Regenerate The File Audit
 
-The file audit is generated directly from the repository sources:
-
 ```bash
 cd /glade/u/home/wchen/lesgo-gpu-test
 python3 tools/generate_gpu_file_audit.py
 ```
 
 This refreshes `docs/gpu/file-audit.md` with the current file list, procedure inventory, GPU markers, retained switches, and developer notes.
-
-## Scope Boundaries
-
-The documentation separates three categories of code:
-
-| Category | Policy |
-|---|---|
-| Runtime timestep kernels | GPU-enabled or explicitly documented |
-| MPI exchange and transpose paths | GPU-aware, contiguous-buffer based where validated |
-| I/O, parsing, and one-time initialization | May remain CPU if they do not affect timestep performance |
-
-If future work changes any production GPU path, update the relevant module page and rerun the file audit generator.
