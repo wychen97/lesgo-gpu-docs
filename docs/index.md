@@ -1,5 +1,8 @@
 <section class="lesgo-hero">
-  <div class="lesgo-kicker">CUDA Fortran | GPU-aware MPI | FP64</div>
+  <div class="lesgo-hero-top">
+    <div class="lesgo-kicker">CUDA Fortran | GPU-aware MPI | FP64</div>
+    <img class="lesgo-jhu-logo" src="assets/jhu-logo.png" alt="Johns Hopkins University">
+  </div>
   <h1>LESGO GPU Porting Guide</h1>
   <p>A concise engineering handoff for the CUDA Fortran port of LESGO: what changed, how to build it, how the GPU/MPI paths are validated, and where each Fortran file fits.</p>
   <div class="lesgo-actions">
