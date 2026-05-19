@@ -38,8 +38,8 @@ theme:
     - search.suggest
   palette:
     - scheme: default
-      primary: teal
-      accent: cyan
+      primary: blue
+      accent: light blue
 
 markdown_extensions:
   - admonition

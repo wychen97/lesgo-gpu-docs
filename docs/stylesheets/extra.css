@@ -1,27 +1,31 @@
 :root {
-  --lesgo-ink: #132033;
-  --lesgo-muted: #5b6678;
-  --lesgo-blue: #2563eb;
-  --lesgo-teal: #0f766e;
-  --lesgo-cyan: #0891b2;
-  --lesgo-green: #059669;
-  --lesgo-amber: #d97706;
-  --lesgo-panel: #f8fafc;
-  --lesgo-line: #d8e1ee;
-  --lesgo-soft: #eef8f7;
+  --lesgo-ink: #10213f;
+  --lesgo-muted: #52627a;
+  --lesgo-blue: #002d72;
+  --lesgo-blue-mid: #0077d8;
+  --lesgo-blue-soft: #eaf2fb;
+  --lesgo-spirit: #68ace5;
+  --lesgo-teal: #008767;
+  --lesgo-cyan: #4e97e0;
+  --lesgo-green: #008767;
+  --lesgo-green-dark: #275e3d;
+  --lesgo-amber: #ff9e1b;
+  --lesgo-panel: #f7faff;
+  --lesgo-line: #d7e4f3;
+  --lesgo-soft: #eff6fd;
 }
 
 .md-header {
-  background: linear-gradient(90deg, #0f766e 0%, #2563eb 100%);
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.08);
+  background: linear-gradient(90deg, #002d72 0%, #004b9b 58%, #0077d8 100%);
+  box-shadow: 0 1px 0 rgba(0, 45, 114, 0.22);
 }
 
 .md-tabs {
-  background: #0f766e;
+  background: #00265f;
 }
 
 .md-main {
-  background: linear-gradient(180deg, #f8fbfd 0, #ffffff 18rem);
+  background: linear-gradient(180deg, #edf5fc 0, #ffffff 18rem);
 }
 
 .md-typeset {
@@ -30,7 +34,7 @@
 }
 
 .md-typeset h1 {
-  color: var(--lesgo-ink);
+  color: var(--lesgo-blue);
   font-weight: 850;
   letter-spacing: 0;
   margin-bottom: 0.75rem;
@@ -42,11 +46,11 @@
   letter-spacing: 0;
   margin-top: 2rem;
   padding-bottom: 0.22rem;
-  border-bottom: 1px solid #e7edf5;
+  border-bottom: 1px solid var(--lesgo-line);
 }
 
 .md-typeset h3 {
-  color: #24304a;
+  color: #19345f;
   font-weight: 720;
 }
 
@@ -55,7 +59,11 @@
 }
 
 .md-typeset a {
-  color: #0f766e;
+  color: var(--lesgo-blue);
+}
+
+.md-typeset a:hover {
+  color: var(--lesgo-blue-mid);
 }
 
 .md-typeset code {
@@ -65,13 +73,15 @@
 .md-typeset table:not([class]) {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.045);
+  box-shadow: 0 10px 28px rgba(0, 45, 114, 0.055);
+  border-top: 3px solid rgba(0, 45, 114, 0.16);
   background: #ffffff;
 }
 
 .md-typeset table:not([class]) th {
-  background: #eef8f7;
-  color: #132033;
+  background: var(--lesgo-blue-soft);
+  color: var(--lesgo-blue);
+  border-bottom: 1px solid var(--lesgo-line);
   font-weight: 760;
 }
 
@@ -86,19 +96,19 @@
   border: 1px solid var(--lesgo-line);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(15,118,110,0.10) 0%, rgba(37,99,235,0.08) 54%, rgba(255,255,255,0.96) 100%),
+    linear-gradient(135deg, rgba(0,45,114,0.12) 0%, rgba(104,172,229,0.13) 54%, rgba(255,255,255,0.98) 100%),
     #ffffff;
   margin: 0.55rem 0 1.35rem;
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 18px 42px rgba(0, 45, 114, 0.08);
 }
 
 .lesgo-kicker {
   width: fit-content;
   padding: 0.28rem 0.55rem;
-  border: 1px solid #a7f3d0;
+  border: 1px solid #b9d8f4;
   border-radius: 999px;
-  color: #065f46;
-  background: #ecfdf5;
+  color: var(--lesgo-blue);
+  background: #f4f8fd;
   font-size: 0.68rem;
   font-weight: 850;
   letter-spacing: 0.02em;
@@ -128,9 +138,9 @@
   display: inline-block;
   padding: 0.64rem 0.92rem;
   border-radius: 8px;
-  border: 1px solid #b8d7d4;
+  border: 1px solid #b9d8f4;
   background: #ffffff;
-  color: #0f766e !important;
+  color: var(--lesgo-blue) !important;
   font-weight: 760;
   text-decoration: none !important;
   box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
@@ -139,14 +149,14 @@
 
 .lesgo-button:hover {
   transform: translateY(-1px);
-  border-color: #0f766e;
-  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.14);
+  border-color: var(--lesgo-blue);
+  box-shadow: 0 8px 20px rgba(0, 45, 114, 0.16);
 }
 
 .lesgo-button.primary {
-  background: #0f766e;
+  background: var(--lesgo-blue);
   color: #ffffff !important;
-  border-color: #0f766e;
+  border-color: var(--lesgo-blue);
 }
 
 .lesgo-grid {
@@ -161,7 +171,8 @@
   border-radius: 8px;
   padding: 1rem;
   background: #ffffff;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.045);
+  box-shadow: 0 10px 28px rgba(0, 45, 114, 0.055);
+  border-top: 3px solid rgba(0, 45, 114, 0.16);
 }
 
 .lesgo-card strong {
@@ -176,8 +187,8 @@
 }
 
 .lesgo-callout {
-  border-left: 4px solid var(--lesgo-teal);
-  background: #f5fbfa;
+  border-left: 4px solid var(--lesgo-green);
+  background: #f3fbf8;
   padding: 0.9rem 1rem;
   border-radius: 0 8px 8px 0;
   margin: 1rem 0;
@@ -189,8 +200,8 @@
   border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 800;
-  color: #065f46;
-  background: #d1fae5;
+  color: var(--lesgo-green-dark);
+  background: #d9f0e9;
   vertical-align: middle;
 }
 
@@ -200,7 +211,7 @@
   padding: 0.75rem;
   background: #ffffff;
   margin: 1rem 0 1.5rem;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
+  box-shadow: 0 12px 30px rgba(0, 45, 114, 0.052);
 }
 
 .lesgo-image-frame img {
@@ -221,7 +232,7 @@
   justify-content: center;
   margin: 2.2rem 0 0.8rem;
   padding-top: 1.2rem;
-  border-top: 1px solid #e7edf5;
+  border-top: 1px solid var(--lesgo-line);
 }
 
 .lesgo-affiliation-logo img {
