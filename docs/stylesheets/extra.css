@@ -230,13 +230,14 @@
 .lesgo-affiliation-logo {
   display: flex;
   justify-content: center;
-  margin: 2.2rem 0 0.8rem;
-  padding-top: 1.2rem;
+  margin: 1.7rem 0 0.45rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--lesgo-line);
 }
 
 .lesgo-affiliation-logo img {
   display: block;
-  width: min(35rem, 100%);
+  width: clamp(13rem, 32vw, 22rem);
+  max-width: 82%;
   height: auto;
 }
