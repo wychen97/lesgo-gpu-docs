@@ -8,7 +8,7 @@ The derivative work was GPU-enabled by moving loop-heavy x/y/z derivative operat
 
 ## Convection
 
-Primary production file: `convec.f90`. Reference variants are retained as `convec-1dfft-cpu.f90`, `convec-1dfft-gpu.f90`, `convec-2dfft-cpu.f90`, and `convec-2dfft-gpu.f90`.
+Primary production file: `convec.f90`. The older 1D/2D FFT reference files were removed from the release because they were temporary comparison material.
 
 The production convection path is GPU-enabled and uses the validated GPU implementation by default. Convection remains one of the largest single-GPU costs in the current validation case, but it scales reasonably when the slab is split across two GPUs.
 

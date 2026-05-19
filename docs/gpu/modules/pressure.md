@@ -9,7 +9,6 @@ The pressure solver is the most communication-sensitive part of the multi-GPU br
 | `press_stag_array.f90` | Pressure RHS, pressure halos, cuFFT orchestration |
 | `tridag_array.f90` | Tridiagonal solve and pressure transpose-Thomas helper |
 | `mpi_transpose_mod.f90` | MPI transpose support |
-| `press_stag_array-cpu.f90`, `press_stag_array-gpu.f90` | Reference/previous pressure versions |
 
 ## Implemented GPU Changes
 

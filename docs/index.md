@@ -12,7 +12,7 @@
 <div class="lesgo-grid">
   <div class="lesgo-card"><strong>GPU source handoff</strong><span>Architecture and module notes for developers familiar with CPU LESGO.</span></div>
   <div class="lesgo-card"><strong>480x240x240 benchmark</strong><span>CPU sweep, 1-GPU, and 2-GPU short-run comparison with plots.</span></div>
-  <div class="lesgo-card"><strong>75-file audit</strong><span>Generated inventory of Fortran files, procedures, GPU markers, and runtime relevance.</span></div>
+  <div class="lesgo-card"><strong>69-file audit</strong><span>Generated inventory of Fortran files, procedures, GPU markers, and runtime relevance.</span></div>
 </div>
 
 ## Quick Links
