@@ -84,18 +84,6 @@ mpiexec -n 2 -ppn 2 set_gpu_rank ./lesgo-mpi-ATM
 
 Make sure the `nproc` value in `lesgo.conf` matches the MPI rank count.
 
-## Local Or Delta-Style Build
-
-On systems where the helper environment is named `env_nvidia`, use it first, then configure with the same CMake options:
-
-```bash
-env_nvidia
-export FFTW_ROOT=/path/to/fftw
-FC=mpifort cmake -S . -B bld-gpu -DCMAKE_Fortran_COMPILER=mpifort -DUSE_MPI=ON -DUSE_ATM=ON
-cmake --build bld-gpu -j 8
-```
-
-The important requirements are NVHPC/NVFORTRAN, CUDA, MPI, FFTW, and CUDA-aware MPI for multi-GPU tests.
 
 ## Common Mistakes
 

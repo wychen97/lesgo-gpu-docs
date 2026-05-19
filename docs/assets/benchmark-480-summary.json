@@ -25,16 +25,55 @@
   ],
   "gpu": [
     {
+      "gpus": 1,
+      "mpi": 1,
       "label": "1 GPU / 1 MPI",
-      "avg_steps_2_10_s": 0.1033681222222222
+      "step_s": 0.1033681222222222,
+      "measured": true
     },
     {
-      "label": "2 GPU / 2 MPI",
-      "avg_steps_2_10_s": 0.06100145
+      "gpus": 2,
+      "mpi": 2,
+      "label": "2 GPUs / 2 MPI",
+      "step_s": 0.06100145,
+      "measured": true
+    },
+    {
+      "gpus": 4,
+      "mpi": 4,
+      "label": "4 GPUs / 4 MPI",
+      "step_s": null,
+      "measured": false
     }
   ],
+  "flow_field": {
+    "plane": "z=2.5",
+    "step": 10,
+    "cpu_run": "6163625.desched1_cpu2_480_z10",
+    "gpu_run": "6163579.desched1_gpu1_480_z",
+    "metrics": [
+      {
+        "component": "u",
+        "L1": 4.9730377994618e-16,
+        "L2": 6.600106086728776e-16,
+        "Linf": 3.1086244689504383e-15
+      },
+      {
+        "component": "v",
+        "L1": 1.5700041774292665e-16,
+        "L2": 2.0584553771025857e-16,
+        "Linf": 9.975473138496005e-16
+      },
+      {
+        "component": "w",
+        "L1": 7.750050893574976e-17,
+        "L2": 1.0164303569495545e-16,
+        "Linf": 5.063224145507306e-16
+      }
+    ]
+  },
   "speedup_vs_best_cpu": {
     "1 GPU": 6.133661774729391,
-    "2 GPU": 10.393607037209772
+    "2 GPUs": 10.393607037209772
   }
 }

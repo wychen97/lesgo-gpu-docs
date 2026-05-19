@@ -12,7 +12,6 @@ The official target is FP64. The production path assumes CUDA Fortran with NVHPC
 | GPU memory, synchronization, and MPI rules | [GPU Architecture](architecture.md) |
 | Derecho build and runtime controls | [Build And Runtime](build-runtime.md) |
 | Correctness checks and performance baselines | [Validation And Performance](validation-performance.md) |
-| How to safely edit GPU kernels | [Developer Guide](developer-guide.md) |
 | Detailed module migration notes | [Module Notes](modules/core-solver.md) |
 | Generated 69-file audit matrix | [File Audit](file-audit.md) |
 

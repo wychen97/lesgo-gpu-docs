@@ -1,61 +1,73 @@
 # 480x240x240 Validation And Benchmark
 
-This page reports a short no-I/O comparison for the actuator turbine model workload at `480 x 240 x 240`. The goal is to provide a compact CPU/GPU efficiency check, not a full production benchmark campaign.
+This page is the short no-I/O verification case for the actuator turbine model at `480 x 240 x 240`. The comparison uses the same case setup and reports compute time only.
 
-## Test Case
+## Test Setup
 
 | Item | Setting |
 |---|---|
 | Case | `test-cases/actuator_turbine_model` |
 | Grid | `Nx=480`, `Ny=240`, `Nz=240` |
 | Active module | `USE_ATM=ON` |
-| Output policy | Domain/plane output disabled for timing |
-| CPU executable | `lesgo-mpi-ATM-cpu` |
-| GPU executable | `lesgo-mpi-ATM` |
+| Output policy | Heavy domain/plane output disabled for timing runs |
 | CPU sweep | 24, 40, 60, 80, 120 MPI ranks; 3 steps |
-| GPU runs | 1 MPI / 1 GPU and 2 MPI / 2 GPU; 10 steps |
+| GPU timing | A100 runs, average of steps 2-10 |
+| GPU configurations | 1, 2, and 4 GPU launch files supported; measured A100 results currently shown for 1 and 2 GPUs |
 
-## Main Result
+## Runtime Summary
 
-| Run | Time Used For Comparison | Speedup vs Best CPU | Notes |
+| Run | Step Time | Speedup vs Best CPU | Notes |
 |---|---:|---:|---|
-| Best CPU | `0.634 s/step` | `1.0x` | 120 MPI ranks, step 3 |
-| 1 GPU / 1 MPI | `0.103 s/step` | `6.1x` | average of steps 2-10 |
-| 2 GPU / 2 MPI | `0.061 s/step` | `10.4x` | average of steps 2-10 |
+| Best CPU | `0.634 s/step` | `1.0x` | 120 MPI ranks |
+| 1 GPU / 1 MPI | `0.103 s/step` | `6.1x` | A100, optimized default path |
+| 2 GPUs / 2 MPI | `0.061 s/step` | `10.4x` | Same-node A100 run |
+| 4 GPUs / 4 MPI | pending | pending | Launch configuration prepared; excluded until a clean A100 run is collected |
 
 <div class="lesgo-image-frame">
   <img src="../../assets/benchmark-480-step-times.svg" alt="480x240x240 step time over iterations">
 </div>
 
+<div class="lesgo-image-frame">
+  <img src="../../assets/benchmark-480-gpu-scaling.svg" alt="GPU scaling chart for the 480 workload">
+</div>
+
 ## CPU Sweep
 
-The CPU baseline uses the fastest short CPU run observed in the sweep.
+The CPU baseline is selected from this short rank sweep.
 
 <div class="lesgo-image-frame">
-  <img src="../../assets/benchmark-480-cpu-sweep.svg" alt="CPU core-count sweep for the 480 workload">
+  <img src="../../assets/benchmark-480-cpu-sweep.svg" alt="CPU line sweep for the 480 workload">
 </div>
 
 ## Module Breakdown
-
-The module comparison uses the best CPU run and GPU averages from steps 2-10.
 
 <div class="lesgo-image-frame">
   <img src="../../assets/benchmark-480-module-breakdown.svg" alt="CPU and GPU module timing breakdown for the 480 workload">
 </div>
 
-## Correctness Check
+## Flow-Field Verification
+
+The figure compares the `z=2.5` velocity plane at step 10. The left and center panels show the CPU and GPU `u` field; the right panel shows the absolute difference.
+
+<div class="lesgo-image-frame">
+  <img src="../../assets/benchmark-480-flow-compare.svg" alt="CPU and GPU flow-field comparison on the z=2.5 plane">
+</div>
+
+| Component | L1 Mean Error | L2 Error | Max Error |
+|---|---:|---:|---:|
+| `u` | `4.97E-16` | `6.60E-16` | `3.11E-15` |
+| `v` | `1.57E-16` | `2.06E-16` | `9.98E-16` |
+| `w` | `7.75E-17` | `1.02E-16` | `5.06E-16` |
+
+## Scalar Checks
 
 | Run | Divergence | KE | Bot Wall Stress |
 |---|---:|---:|---:|
-| CPU 120 MPI | `0.8952595E-04` | `0.4999226E+00` | `0.8685739E-05` |
-| 1 GPU / 1 MPI | `0.2681679E-03` | `0.4998491E+00` | `0.8686115E-05` |
-| 2 GPU / 2 MPI | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` |
+| CPU, 2 MPI, step 10 | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` |
+| 1 GPU / 1 MPI, step 10 | `0.2681679E-03` | `0.4998491E+00` | `0.8686115E-05` |
+| 2 GPUs / 2 MPI, step 10 | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` |
 
-The CPU sweep ran only 3 steps while the GPU runs ran 10 steps, so the final-step flow fields are not at the same physical time. These values are included as a sanity check for the short comparison, not as a final physics-validation table.
-
-## Reproducing The Short Runs
-
-The comparison scripts already configure the grid and disable heavy output:
+## Reproduce
 
 ```bash
 cd /glade/u/home/wchen/lesgo-gpu-test/test-cases/actuator_turbine_model
@@ -64,4 +76,4 @@ qsub job_compare_gpu1_noio.pbs
 qsub job_compare_gpu2_noio.pbs
 ```
 
-For a publication-quality benchmark, rerun CPU and GPU for the same number of steps, discard warmup steps consistently, and report the average over a longer steady timing window.
+For the optional four-GPU run, use the same comparison script with `gpu 4 4` once an A100 four-GPU allocation is available.
