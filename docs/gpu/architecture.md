@@ -1,6 +1,6 @@
 # GPU Architecture
 
-The GPU migration follows a conservative rule: preserve LESGO numerics and module ordering, then move repeated timestep work to the GPU. The code uses CUDA Fortran, CUF kernel loops, cuFFT, and GPU-aware MPI.
+The GPU port follows a conservative rule: preserve LESGO numerics and module ordering, then move repeated timestep work to the GPU. The code uses CUDA Fortran, CUF kernel loops, cuFFT, and GPU-aware MPI.
 
 ## Core Design Rules
 

@@ -1,6 +1,6 @@
-# LESGO GPU Migration Guide
+# LESGO GPU Porting Guide
 
-This documentation is an engineering handoff for the GPU-enabled LESGO branch in this repository. It is written for developers who already understand the original CPU LESGO code and need to understand what changed, where the GPU paths live, how the MPI/GPU ownership works, and how to modify the code without breaking validated behavior.
+This documentation is an engineering handoff for the GPU-ported LESGO branch in this repository. It is written for developers who already understand the original CPU LESGO code and need to understand what changed, where the GPU paths live, how MPI/GPU ownership works, and how to modify the code without breaking validated behavior.
 
 The official target is FP64. The production path assumes CUDA Fortran with NVHPC, CUDA-aware MPI, and the current z-slab MPI decomposition. Most GPU paths are enabled by default after validation. Remaining environment switches are limited to core fallbacks, timing checkpoints, and validation aids.
 
@@ -12,7 +12,7 @@ The official target is FP64. The production path assumes CUDA Fortran with NVHPC
 | GPU memory, synchronization, and MPI rules | [GPU Architecture](architecture.md) |
 | Derecho build and runtime controls | [Build And Runtime](build-runtime.md) |
 | Correctness checks and performance baselines | [Validation And Performance](validation-performance.md) |
-| Detailed module migration notes | [Module Notes](modules/core-solver.md) |
+| Detailed module porting notes | [Module Notes](modules/core-solver.md) |
 | Generated 69-file audit matrix | [File Audit](file-audit.md) |
 
 ## Current Default Philosophy

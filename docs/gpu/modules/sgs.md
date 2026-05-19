@@ -1,6 +1,6 @@
 # SGS And Stresses
 
-The SGS module was one of the largest GPU migration targets because it contains repeated full-domain tensor work plus MPI halo exchange.
+The SGS module was one of the largest GPU porting targets because it contains repeated full-domain tensor work plus MPI halo exchange.
 
 ## Primary Files
 

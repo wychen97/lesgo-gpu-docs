@@ -1,6 +1,6 @@
 # Optional Modules
 
-The production validation path is ATM-focused, but the repository also contains optional modules controlled by CMake options and runtime configuration. The GPU migration policy is to GPU-enable loop-heavy timestep work, while allowing I/O and one-time setup to remain CPU-side when it does not affect timestep performance.
+The production validation path is ATM-focused, but the repository also contains optional modules controlled by CMake options and runtime configuration. The GPU porting policy is to GPU-enable loop-heavy timestep work, while allowing I/O and one-time setup to remain CPU-side when it does not affect timestep performance.
 
 | Module / Option | Main Files | GPU Policy |
 |---|---|---|

@@ -1,12 +1,12 @@
 # Main Timestep Flow
 
-The current GPU branch keeps the original LESGO timestep structure. The migration changes where work is executed and how data is exchanged, not the physical model ordering.
+The current GPU branch keeps the original LESGO timestep structure. The port changes where work is executed and how data is exchanged, not the physical model ordering.
 
 ## Runtime Sections
 
 The main loop reports the following cumulative module sections. The latest post-cleanup short validation used the actuator turbine model case on Derecho.
 
-| Section | Main Purpose | Primary Files | 1 MPI / 1 GPU Step-10 Time | 2 MPI / 2 GPU Step-10 Time | GPU Migration Status |
+| Section | Main Purpose | Primary Files | 1 MPI / 1 GPU Step-10 Time | 2 MPI / 2 GPU Step-10 Time | GPU Porting Status |
 |---|---|---|---:|---:|---|
 | Forcing | ATM, inflow/fringe, applied forcing | `forcing.f90`, `atm_lesgo_interface.f90`, `actuator_turbine_model.f90` | 0.001192 s | 0.001106 s | GPU-enabled; point-owner LB remains experimental |
 | Derivatives | Spatial derivatives, filtering support | `derivatives.f90`, `test_filtermodule.f90` | 0.017776 s | 0.009083 s | GPU-enabled |
@@ -31,7 +31,7 @@ for each timestep:
 finalize
 ```
 
-The GPU migration preserves this ordering. Optimizations focused on reducing data migration, fusing or enlarging underfilled kernels, using CUDA-aware MPI with contiguous buffers, and avoiding unnecessary `cudaDeviceSynchronize()` calls.
+The GPU port preserves this ordering. Optimizations focused on reducing data migration, fusing or enlarging underfilled kernels, using CUDA-aware MPI with contiguous buffers, and avoiding unnecessary `cudaDeviceSynchronize()` calls.
 
 ## Data Ownership
 
