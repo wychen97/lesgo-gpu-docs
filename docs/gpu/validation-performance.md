@@ -1,100 +1,67 @@
-# Validation And Performance
+# 480x240x240 Validation And Benchmark
 
-<span class="lesgo-status">updated benchmark policy</span>
+This page reports a short no-I/O comparison for the actuator turbine model workload at `480 x 240 x 240`. The goal is to provide a compact CPU/GPU efficiency check, not a full production benchmark campaign.
 
-This page separates **correctness validation** from **performance benchmarking**. The numbers currently shown are smoke-validation values from the cleanup run; they prove that the GPU code still produces the expected diagnostics, but they should not be used as final CPU/GPU speedup claims until the grid, CPU core count, CMake options, `lesgo.conf`, and I/O policy are all locked.
+## Test Case
+
+| Item | Setting |
+|---|---|
+| Case | `test-cases/actuator_turbine_model` |
+| Grid | `Nx=480`, `Ny=240`, `Nz=240` |
+| Active module | `USE_ATM=ON` |
+| Output policy | Domain/plane output disabled for timing |
+| CPU executable | `lesgo-mpi-ATM-cpu` |
+| GPU executable | `lesgo-mpi-ATM` |
+| CPU sweep | 24, 40, 60, 80, 120 MPI ranks; 3 steps |
+| GPU runs | 1 MPI / 1 GPU and 2 MPI / 2 GPU; 10 steps |
+
+## Main Result
+
+| Run | Time Used For Comparison | Speedup vs Best CPU | Notes |
+|---|---:|---:|---|
+| Best CPU | `0.634 s/step` | `1.0x` | 120 MPI ranks, step 3 |
+| 1 GPU / 1 MPI | `0.103 s/step` | `6.1x` | average of steps 2-10 |
+| 2 GPU / 2 MPI | `0.061 s/step` | `10.4x` | average of steps 2-10 |
 
 <div class="lesgo-image-frame">
-  <img src="../../assets/validation-benchmark-pipeline.svg" alt="Validation and benchmark workflow diagram">
+  <img src="../../assets/benchmark-480-step-times.svg" alt="480x240x240 step time over iterations">
 </div>
 
-<div class="lesgo-callout">
-<strong>Current status:</strong> correctness checks are valid; final performance comparison is pending. The final benchmark must compare CPU and GPU using the same grid and active modules.
+## CPU Sweep
+
+The CPU baseline uses the fastest short CPU run observed in the sweep.
+
+<div class="lesgo-image-frame">
+  <img src="../../assets/benchmark-480-cpu-sweep.svg" alt="CPU core-count sweep for the 480 workload">
 </div>
 
-## Correctness Release Gates
+## Module Breakdown
 
-| Area | Required Checks |
-|---|---|
-| Flow field | Divergence, kinetic energy, bottom wall stress |
-| Pressure | Divergence, pressure timing, pressure checksum or norm when touching solver internals |
-| SGS | Divergence, KE, wall stress, tau halo consistency |
-| ATM forcing | Global force sums, turbine thrust, torque, power, sampled velocity checksum |
-| MPI paths | Same diagnostics for 1 MPI / 1 GPU and multi-MPI / multi-GPU |
+The module comparison uses the best CPU run and GPU averages from steps 2-10.
 
-## Latest Smoke Validation
+<div class="lesgo-image-frame">
+  <img src="../../assets/benchmark-480-module-breakdown.svg" alt="CPU and GPU module timing breakdown for the 480 workload">
+</div>
 
-These values are from a short post-cleanup run. They are useful for regression detection, not for final benchmark reporting.
+## Correctness Check
 
-| Case | Divergence | KE | Bot Wall Stress | Step Time | Interpretation |
-|---|---:|---:|---:|---:|---|
-| 1 MPI / 1 GPU | `0.2681679E-03` | `0.4998491E+00` | `0.8686115E-05` | `0.1051949 s` | Correctness smoke test |
-| 2 MPI / 2 GPU | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` | `0.0634820 s` | Correctness smoke test |
+| Run | Divergence | KE | Bot Wall Stress |
+|---|---:|---:|---:|
+| CPU 120 MPI | `0.8952595E-04` | `0.4999226E+00` | `0.8685739E-05` |
+| 1 GPU / 1 MPI | `0.2681679E-03` | `0.4998491E+00` | `0.8686115E-05` |
+| 2 GPU / 2 MPI | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` |
 
-## Why The Old Table Was Misleading
+The CPU sweep ran only 3 steps while the GPU runs ran 10 steps, so the final-step flow fields are not at the same physical time. These values are included as a sanity check for the short comparison, not as a final physics-validation table.
 
-The previous version showed module timings without a corresponding CPU table and without a frozen benchmark grid. That made the data look like a final speedup comparison. It was not. For a meaningful CPU/GPU comparison, all of the following must be identical or explicitly documented:
+## Reproducing The Short Runs
 
-| Requirement | Required State Before Reporting Speedup |
-|---|---|
-| Grid | Fixed, for example `Nx x Ny x Nz` documented in the table caption |
-| Active modules | Same CMake options and same runtime flags |
-| Input file | Same `lesgo.conf`, same turbine/ATM inputs |
-| I/O | Either disabled or measured separately |
-| CPU baseline | Sweep core counts and report the fastest valid CPU run |
-| GPU baseline | Report 1 GPU, same-node multi-GPU, and multi-node if relevant |
-| Numerical checks | Divergence, KE, wall stress, and ATM force quantities match |
+The comparison scripts already configure the grid and disable heavy output:
 
-## Final Benchmark Table Template
-
-Fill this table only after the case is locked.
-
-| Module | Best CPU Time | CPU MPI Ranks | 1 GPU Time | 2 GPU Time | Speedup vs Best CPU | Notes |
-|---|---:|---:|---:|---:|---:|---|
-| Forcing | pending | pending | pending | pending | pending | Include ATM settings |
-| Derivatives | pending | pending | pending | pending | pending | Same grid required |
-| SGS & Stresses | pending | pending | pending | pending | pending | Same SGS model required |
-| Convection | pending | pending | pending | pending | pending | No-I/O timing preferred |
-| Pressure Solver | pending | pending | pending | pending | pending | Include transpose/RHS halo mode |
-| Projection | pending | pending | pending | pending | pending | Usually small but still tracked |
-| Other | pending | pending | pending | pending | pending | Explain what is included |
-| Total step | pending | pending | pending | pending | pending | Primary headline value |
-
-## CPU Baseline Protocol
-
-The CPU comparison should be a core-count sweep, not a single arbitrary CPU run. Recommended minimum:
-
-| Run | Purpose |
-|---|---|
-| CPU 1 node, low rank count | Establish scaling start point |
-| CPU 1 node, medium rank count | Detect best on-node balance |
-| CPU 1 node, high rank count | Detect saturation or MPI overhead |
-| CPU fastest valid setting | Use this as the official CPU baseline |
-| GPU 1 MPI / 1 GPU | Single-GPU baseline |
-| GPU 2 MPI / 2 GPU same node | Multi-GPU communication baseline |
-| GPU multi-node, if needed | Scaling and network sensitivity |
-
-## Timing Rules
-
-Diagnostic timers can change performance by adding synchronization. Use production timings with diagnostic switches off for headline results. Use detailed timers only to attribute bottlenecks.
-
-| Timing Mode | Use Case |
-|---|---|
-| Clean production timing | Performance reporting |
-| Stage timing | Coarse module regression checks |
-| GPU event timing | Kernel attribution without overcharging sync debt |
-| Strict sync timing | Debug only; not representative of production |
-
-## Reporting Standard
-
-A final performance figure should include this caption information:
-
-```text
-Grid: <Nx x Ny x Nz>
-Case: <test-case path or name>
-CMake options: <active options>
-CPU baseline: <rank count, node type, compiler, average step time>
-GPU baseline: <GPU model, MPI ranks, average step time>
-I/O policy: <included or excluded>
-Validation: <divergence, KE, wall stress, force checks>
+```bash
+cd /glade/u/home/wchen/lesgo-gpu-test/test-cases/actuator_turbine_model
+qsub job_compare_cpu120.pbs
+qsub job_compare_gpu1_noio.pbs
+qsub job_compare_gpu2_noio.pbs
 ```
+
+For a publication-quality benchmark, rerun CPU and GPU for the same number of steps, discard warmup steps consistently, and report the average over a longer steady timing window.

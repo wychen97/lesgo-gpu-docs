@@ -1,0 +1,40 @@
+{
+  "grid": "480x240x240",
+  "case": "actuator_turbine_model",
+  "cpu_sweep": [
+    {
+      "ranks": 24,
+      "step_s": 2.116493
+    },
+    {
+      "ranks": 40,
+      "step_s": 1.393183
+    },
+    {
+      "ranks": 60,
+      "step_s": 1.015638
+    },
+    {
+      "ranks": 80,
+      "step_s": 0.8468013
+    },
+    {
+      "ranks": 120,
+      "step_s": 0.6340251
+    }
+  ],
+  "gpu": [
+    {
+      "label": "1 GPU / 1 MPI",
+      "avg_steps_2_10_s": 0.1033681222222222
+    },
+    {
+      "label": "2 GPU / 2 MPI",
+      "avg_steps_2_10_s": 0.06100145
+    }
+  ],
+  "speedup_vs_best_cpu": {
+    "1 GPU": 6.133661774729391,
+    "2 GPU": 10.393607037209772
+  }
+}

@@ -16,8 +16,8 @@ nav:
       - Main Timestep Flow: gpu/main-flow.md
       - GPU Architecture: gpu/architecture.md
       - Build And Runtime: gpu/build-runtime.md
+      - CMake And Environment: gpu/cmake-environment.md
       - Validation And Performance: gpu/validation-performance.md
-      - Developer Guide: gpu/developer-guide.md
       - File Audit: gpu/file-audit.md
   - Module Notes:
       - Derivatives, Convection, Projection: gpu/modules/core-solver.md
