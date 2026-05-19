@@ -29,21 +29,32 @@
       "mpi": 1,
       "label": "1 GPU / 1 MPI",
       "step_s": 0.1033681222222222,
-      "measured": true
+      "measured": true,
+      "note": "A100, optimized default path"
     },
     {
       "gpus": 2,
       "mpi": 2,
       "label": "2 GPUs / 2 MPI",
       "step_s": 0.06100145,
-      "measured": true
+      "measured": true,
+      "note": "Same-node A100; nproc==2 pressure specialization"
+    },
+    {
+      "gpus": 3,
+      "mpi": 3,
+      "label": "3 GPUs / 3 MPI",
+      "step_s": 0.1022325,
+      "measured": true,
+      "note": "Same-node A100; generic pressure path"
     },
     {
       "gpus": 4,
       "mpi": 4,
       "label": "4 GPUs / 4 MPI",
-      "step_s": null,
-      "measured": false
+      "step_s": 0.09981326,
+      "measured": true,
+      "note": "Same-node A100; generic pressure path"
     }
   ],
   "flow_field": {
@@ -74,6 +85,13 @@
   },
   "speedup_vs_best_cpu": {
     "1 GPU": 6.133661774729391,
-    "2 GPUs": 10.393607037209772
-  }
+    "2 GPUs": 10.393607037209772,
+    "3 GPUs": 6.2017959063898465,
+    "4 GPUs": 6.352112935696119
+  },
+  "new_gpu_runs": {
+    "3 GPUs": "6186898.desched1_gpu3_1node_480_noio",
+    "4 GPUs": "6186899.desched1_gpu4_1node_480_noio"
+  },
+  "note": "3/4 GPU runs use the generic multi-rank pressure path; 2 GPUs remains fastest for this case because of the nproc==2 pressure specialization."
 }
