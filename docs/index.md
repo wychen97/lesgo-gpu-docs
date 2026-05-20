@@ -5,7 +5,7 @@
   <div class="lesgo-actions">
     <a class="lesgo-button primary" href="gpu/">Read The Guide</a>
     <a class="lesgo-button" href="gpu/cmake-environment/">Build Setup</a>
-    <a class="lesgo-button" href="gpu/validation-performance/">480 Benchmark</a>
+    <a class="lesgo-button" href="gpu/validation-performance/">Benchmark</a>
     <a class="lesgo-button" href="gpu/file-audit/">File Audit</a>
   </div>
 </section>
