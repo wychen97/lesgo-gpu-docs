@@ -31,7 +31,7 @@ These values are close enough for a turbulent long-run validation. The instantan
 
 ### Mean Velocity
 
-The mean velocity profile is compared against the rough-wall log-law trend. CPU and GPU are shown on identical axes.
+The mean velocity profile is compared against the rough-wall log-law trend. CPU and GPU are shown on identical axes, with `U+` plotted across the full wall-normal height.
 
 <div class="lesgo-image-frame">
   <img src="../../assets/default-channel-128-mean-velocity.png" alt="CPU and GPU mean velocity profiles for the default 128 cubed half-channel case">
