@@ -76,9 +76,22 @@ The mid-plane contours compare the instantaneous `u'` field at `z/H = 0.5` and s
 |---|---:|
 | L1 distance between normalized PDFs | `1.95679E-01` |
 
+### Horizontal Energy Spectrum
+
+The spectrum below is computed from the full 3D instantaneous velocity snapshots at step `100,000`. Because this is a wall-bounded channel, the transform is applied only in the periodic horizontal directions; the horizontal mean is removed at each height, all three velocity components are included, and the result is averaged over `z`.
+
+<div class="lesgo-image-frame">
+  <img src="../../assets/default-channel-128-energy-spectrum.png" alt="CPU and GPU horizontal energy spectra for the default 128 cubed half-channel case">
+</div>
+
+| Spectrum Metric | Value |
+|---|---:|
+| L1 distance between normalized horizontal spectra | `2.52855E-01` |
+| Snapshot files | `vel.100000.c*.bin` |
+
 ### Interpretation
 
-The GPU result passes the current physical validation gate for this stage: the mean profile follows the expected log-law trend, the Reynolds-stress profiles have the correct structure, and the instantaneous mid-plane field shows developed turbulent streaks and patches rather than laminar behavior. The PDF and stress differences are now documented explicitly because long chaotic runs should be judged statistically, not by pointwise agreement.
+The GPU result passes the current physical validation gate for this stage: the mean profile follows the expected log-law trend, the Reynolds-stress profiles have the correct structure, and the instantaneous mid-plane field shows developed turbulent streaks and patches rather than laminar behavior.
 
 ## 480x240x240 ATM Benchmark
 
