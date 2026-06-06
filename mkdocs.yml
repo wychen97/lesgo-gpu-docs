@@ -13,6 +13,7 @@ nav:
   - Home: index.md
   - GPU Porting Guide:
       - Overview: gpu/index.md
+      - Explicit Residency WIP: gpu/explicit-residency.md
       - Main Timestep Flow: gpu/main-flow.md
       - GPU Architecture: gpu/architecture.md
       - Build And Runtime: gpu/build-runtime.md

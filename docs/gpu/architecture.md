@@ -1,6 +1,6 @@
 # GPU Architecture
 
-The GPU port follows a conservative rule: preserve LESGO numerics and module ordering, then move repeated timestep work to the GPU. The code uses CUDA Fortran, CUF kernel loops, cuFFT, and GPU-aware MPI.
+The GPU port follows a conservative rule: preserve LESGO numerics and module ordering, then move repeated timestep work to the GPU. The code uses CUDA Fortran, CUF kernel loops, cuFFT, OpenACC in the explicit-residency route, and GPU-aware MPI.
 
 ## Core Design Rules
 
@@ -15,7 +15,18 @@ The GPU port follows a conservative rule: preserve LESGO numerics and module ord
 
 ## Memory Model
 
-The build uses NVHPC CUDA Fortran and managed/device allocations where appropriate. The most important performance rule is to avoid accidental host touches of large managed arrays inside the timestep. Host reductions and diagnostics can silently trigger migration and create false bottlenecks.
+The mature GPU path uses NVHPC CUDA Fortran and managed/device allocations where appropriate. The most important performance rule is to avoid accidental host touches of large managed arrays inside the timestep. Host reductions and diagnostics can silently trigger migration and create false bottlenecks.
+
+The `gpu-explicit-residency-wip` branch adds a stricter route: ordinary host allocatables with persistent OpenACC/CUDA device mirrors, plus explicit host/device movement at call-site boundaries. This is a work in progress. The branch still uses `-gpu=mem:managed` for compatibility while remaining modules are converted.
+
+Use this distinction when reviewing code:
+
+| Storage pattern | Current role |
+|---|---|
+| Managed allocation | Still present in fallback and incomplete paths |
+| Explicit device mirror | Preferred for hot timestep arrays |
+| OpenACC `declare create` mirror | Used in selected `PPLES_GPU` host-allocatable paths |
+| Persistent CUDA device buffer | Preferred for MPI pack/unpack and hot derived-type data |
 
 Prefer full-domain kernels for regular loops:
 

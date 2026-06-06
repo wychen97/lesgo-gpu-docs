@@ -36,6 +36,7 @@ export CGNS_ROOT=/glade/u/home/wchen/local/cgns/4.5.2-nvhpc-hdf5mpi
 |---|---|---|
 | `USE_MPI` | `ON` | Production path |
 | `USE_ATM` | `ON` | Actuator turbine model case |
+| `USE_LES_GPU` | `ON` only for explicit-residency WIP testing | Builds `lesgo-mpi-ATM-lesgpu` and enables `PPLES_GPU` plus module GPU preprocessor paths |
 | `USE_CPS` | `OFF` | Optional precursor mode |
 | `USE_HIT` | `OFF` | Optional HIT input |
 | `USE_LVLSET` | `OFF` | Optional level-set path |
@@ -50,6 +51,14 @@ Equivalent manual configure command:
 FC=ftn cmake -S . -B bld-derecho-a100   -DCMAKE_Fortran_COMPILER=ftn   -DUSE_MPI=ON   -DUSE_ATM=ON   -DUSE_CPS=OFF   -DUSE_HIT=OFF   -DUSE_LVLSET=OFF   -DUSE_TURBINES=OFF   -DUSE_CGNS=OFF   -DUSE_SCALARS=OFF
 cmake --build bld-derecho-a100 -j 8
 ```
+
+For the explicit-residency WIP branch, add:
+
+```bash
+-DUSE_LES_GPU=ON
+```
+
+That route is intended for collaborator testing. It still keeps managed-memory compatibility while active modules are being converted to explicit device residency.
 
 ## Testing Other CMake Options
 

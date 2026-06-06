@@ -20,6 +20,7 @@ The actuator turbine model is active in the main validation case and was one of 
 | Blade force | GPU-enabled blade/nacelle force calculations |
 | Force reset and application | GPU kernels for force array reset and scatter/apply operations |
 | Gather/reduction | Packed reductions reduce latency relative to many small reductions |
+| Explicit residency WIP | Device force-field shadows plus blade point/force mirrors in `gpu-explicit-residency-wip` |
 | Point-owner LB | Experimental load-balanced ownership model retained behind switches |
 | Auto-select | Optional short probe can choose legacy vs point-owner LB path |
 
@@ -33,4 +34,18 @@ The actuator turbine model is active in the main validation case and was one of 
 | `LESGO_ATM_LB_AUTO_SELECT` | Probe legacy vs LB and choose faster path |
 | `LESGO_ATM_LB_VALIDATE` | Validate LB path against legacy force quantities |
 
-The legacy ATM path remains the default for the current 2-turbine validation case. The point-owner LB algorithm is numerically correct but should be enabled by default only after larger turbine-count tests show a clear benefit.
+The legacy ATM path remains the default for the current 2-turbine validation case. The point-owner LB algorithm remains experimental and should be enabled by default only after strict same-step force, thrust, torque, power, and flow-field comparisons are completed.
+
+## Explicit-Residency ATM Notes
+
+The `gpu-explicit-residency-wip` branch adds the following ATM-specific residency work:
+
+| Data area | WIP storage strategy |
+|---|---|
+| Force-field metadata | Flattened persistent GPU shadow arrays |
+| Blade points | Explicit device mirror `atm_bladePoints_d` |
+| Blade forces | Explicit device mirror `atm_bladeForces_d` |
+| Slim gather blade-force exchange | Device mirror pack/unpack path |
+| Nacelle scratch | Small explicit device scratch buffer with scalar copy-back |
+
+This reduces managed-memory dependence in the active ATM path, but it does not remove all managed memory from ATM. Fallback helpers, full diagnostic gather paths, and some point-owner LB paths still need review before `-gpu=mem:managed` can be removed.
