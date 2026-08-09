@@ -1,16 +1,21 @@
-# LESGO GPU Migration Guide
+# LESGO GPU Porting Guide
 
-This repository publishes the public MkDocs Material documentation for the LESGO GPU migration.
-
-Expected GitHub Pages URL:
+MkDocs source for:
 
 https://wychen97.github.io/lesgo-gpu-docs/
 
-The source documentation lives under `docs/gpu/`. The generated file-by-file audit is `docs/gpu/file-audit.md`.
+The solver and public test cases are maintained at:
 
-To build locally:
+https://github.com/wychen97/lesgo-gpu-porting
+
+Build the site locally with:
 
 ```bash
-pip install mkdocs-material
+python -m pip install mkdocs-material
+mkdocs build --strict
 mkdocs serve
 ```
+
+Source inventories and validation evidence belong in the solver repository.
+This site summarizes and links those records rather than maintaining a second
+generated audit.

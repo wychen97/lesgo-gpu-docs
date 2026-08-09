@@ -1,51 +1,42 @@
-# ATM And Forcing
+# ATM and Forcing
 
-The actuator turbine model is active in the main validation case and was one of the most complex migration areas. It combines turbine control, blade kinematics, velocity sampling, force calculation, MPI aggregation, and force application to the flow grid.
+The actuator turbine model is split between LES field operations and turbine
+model state. The normal GPU path batches velocity sampling, induced-velocity
+correction, force gathering, and force deposition while preserving the original
+two-phase call order in `main.f90`.
 
-## Primary Files
+## Main source files
 
 | File | Role |
-|---|---|
-| `forcing.f90` | Top-level forcing and projection-adjacent force application |
-| `atm_lesgo_interface.f90` | Interface between LESGO flow arrays and ATM data structures |
-| `actuator_turbine_model.f90` | Turbine model physics and blade/nacelle force logic |
-| `atm_base.f90`, `atm_input_util.f90` | ATM types and input parsing |
-| `turbines.f90`, `turbines_gpu.f90`, `turbine_indicator.f90` | Optional turbine/indicator support |
+| --- | --- |
+| `atm_lesgo_interface.f90` | LES/ATM exchange, batched sampling, force gathering and deposition |
+| `actuator_turbine_model.f90` | blade aerodynamics, controls, power, restart, and structural model |
+| `forcing.f90` | LES forcing application and auxiliary forcing |
+| `atm_input_util.f90` | ATM configuration input |
 
-## Implemented GPU Changes
+Atharva's exact-panel induced-velocity correction is integrated in the batched
+GPU ATM path. Rigid and structural configurations use that same correction; GPU
+selection is not conditional on the structural solver being disabled.
 
-| Area | Change |
-|---|---|
-| Velocity sampling | GPU paths for interpolation and on-the-fly w sampling |
-| Blade force | GPU-enabled blade/nacelle force calculations |
-| Force reset and application | GPU kernels for force array reset and scatter/apply operations |
-| Gather/reduction | Packed reductions reduce latency relative to many small reductions |
-| Explicit residency WIP | Device force-field shadows plus blade point/force mirrors in `gpu-explicit-residency-wip` |
-| Point-owner LB | Experimental load-balanced ownership model retained behind switches |
-| Auto-select | Optional short probe can choose legacy vs point-owner LB path |
+The structural model is enabled with `LESGO_ATM_STRUCTURE=1`. Structural state,
+load history, induced-velocity history, and the corresponding restart metadata
+are checked so a continuation does not silently cold-start those terms.
 
-## Retained Controls
+## Maintained controls
 
-| Switch | Purpose |
-|---|---|
-| `LESGO_ATM_DIAG_TIMING` | Detailed ATM timing |
-| `LESGO_ATM_POINT_OWNER_LB` | Experimental decoupled point-owner load balance path |
-| `LESGO_ATM_POINT_OWNER_TARGETED` | Experimental targeted point-owner exchange |
-| `LESGO_ATM_LB_AUTO_SELECT` | Probe legacy vs LB and choose faster path |
-| `LESGO_ATM_LB_VALIDATE` | Validate LB path against legacy force quantities |
+| Variable | Purpose |
+| --- | --- |
+| `LESGO_ATM_STRUCTURE` | Enable structural coupling |
+| `LESGO_ATM_STRUCTURE_VEL_FEEDBACK` | Control structural velocity feedback |
+| `LESGO_ATM_STRUCTURE_ALPHA_FEEDBACK` | Control structural angle-of-attack feedback |
+| `LESGO_ATM_STRUCTURE_TIMING` | Report structural timing |
+| `LESGO_ATM_STRUCTURE_DIAG` | Write structural diagnostics |
+| `LESGO_ATM_POWER_STDOUT` | Print turbine power in addition to normal files |
 
-The legacy ATM path remains the default for the current 2-turbine validation case. The point-owner LB algorithm remains experimental and should be enabled by default only after strict same-step force, thrust, torque, power, and flow-field comparisons are completed.
+Historical point-owner load-balancing and shadow/mirror experiment branches were
+removed after validation did not justify carrying their complexity. The release
+uses the maintained batched ATM route.
 
-## Explicit-Residency ATM Notes
-
-The `gpu-explicit-residency-wip` branch adds the following ATM-specific residency work:
-
-| Data area | WIP storage strategy |
-|---|---|
-| Force-field metadata | Flattened persistent GPU shadow arrays |
-| Blade points | Explicit device mirror `atm_bladePoints_d` |
-| Blade forces | Explicit device mirror `atm_bladeForces_d` |
-| Slim gather blade-force exchange | Device mirror pack/unpack path |
-| Nacelle scratch | Small explicit device scratch buffer with scalar copy-back |
-
-This reduces managed-memory dependence in the active ATM path, but it does not remove all managed memory from ATM. Fallback helpers, full diagnostic gather paths, and some point-owner LB paths still need review before `-gpu=mem:managed` can be removed.
+Any ATM change should compare force sums, thrust, torque, power, blade state,
+and downstream flow fields. Restart checks must cover both rigid and structural
+state when those paths are affected.

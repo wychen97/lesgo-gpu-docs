@@ -1,50 +1,62 @@
 # Developer Guide
 
-## Before Editing
+## Before editing
 
-1. Identify whether the routine is timestep-active, initialization-only, or I/O-only.
-2. Check the [File Audit](file-audit.md) for the file's current GPU status and retained switches.
-3. Find the immediate validation baseline for the case you are modifying.
-4. Decide whether the change needs 1-GPU validation only or both 1-GPU and 2-GPU validation.
+1. Classify the routine as timestep-active, setup-only, diagnostic, or I/O.
+2. Check the [Source Inventory](file-audit.md) and the code repository's GPU
+   coverage audit.
+3. Identify which public case exercises the changed path.
+4. Determine whether persistent state or MPI communication requires restart or
+   multi-rank validation.
 
-## Adding Or Modifying GPU Kernels
+## GPU kernel work
 
-Prefer CUF kernel loops for straightforward structured loops. Use explicit CUDA Fortran kernels when CUF creates many tiny launches, poor occupancy, or awkward flattened indexing.
+Use CUF/OpenACC loops for regular structured work and explicit CUDA Fortran
+kernels when launch geometry, scratch storage, or synchronization requires it.
 
-Avoid these patterns inside production timestep code:
+Avoid these patterns inside regular timesteps:
 
-| Avoid | Reason |
-|---|---|
-| Host `maxval`, `sum`, or debug print on large managed arrays | Can trigger hidden migration |
-| MPI on non-contiguous array sections | May create compiler temporaries or invalid GPU-aware MPI behavior |
-| Per-small-kernel `cudaDeviceSynchronize()` | Charges queued work to the wrong stage and slows production |
-| Rebuilding invariant coefficients every step | Wastes GPU time and memory bandwidth |
-| Adding a new env switch for every experiment | Makes the code harder to read and maintain |
+| Pattern | Risk |
+| --- | --- |
+| Host reduction or print on a device-owned full field | Unplanned transfer or stale host data |
+| Full-field `update self`/`update device` without a named boundary | Bandwidth cost and unclear ownership |
+| MPI on noncontiguous Fortran sections | Compiler temporaries and unsafe device-pointer behavior |
+| Synchronization after every small kernel | Lost overlap and misleading stage timing |
+| Rebuilding invariant coefficients | Repeated launch and memory cost |
+| New environment variable for a one-off experiment | Unmaintained public interface |
 
-## MPI Exchange Pattern
+## MPI exchange pattern
 
 ```text
-pack local data into persistent contiguous device send buffer
-synchronize once if MPI will read GPU data
-perform device-pointer MPI exchange
-unpack received device buffer on GPU
-validate diagnostics against old path
+pack into a persistent contiguous buffer
+satisfy the device-to-MPI dependency
+exchange the device buffer, or the compact host fallback buffer
+unpack on the owning device
+compare against the matched CPU/reference path
 ```
 
-## Adding A Fallback Switch
+`USE_GPU_AWARE_MPI=AUTO` is the normal Cray setting. Any edit to communication
+must preserve the `OFF` host-staged fallback unless the supported platform scope
+is deliberately changed.
 
-Do not add a switch unless it protects a validated numerical fallback, controls a major experimental algorithm, enables concise diagnostic timing, or helps debug MPI/GPU correctness.
+## Restart ownership
 
-## Validation Checklist
+State that affects the next timestep belongs in the restart contract. This
+includes model histories, held forces, structural state, and geometry/transport
+state where applicable. A clean short run is not sufficient evidence for a
+restart-sensitive change; compare a continuous run with a split continuation at
+the same final step.
+
+## Validation checklist
 
 ```text
-[ ] Build succeeds
-[ ] 1 MPI / 1 GPU short run succeeds
-[ ] 2 MPI / 2 GPU short run succeeds if MPI path changed
-[ ] Divergence unchanged
-[ ] Kinetic energy unchanged
-[ ] Bottom wall stress unchanged
-[ ] Module timing not regressed unexpectedly
-[ ] New switch documented or removed
-[ ] File audit regenerated if source files changed
+[ ] CMake rejects invalid option combinations
+[ ] CPU and GPU builds succeed in the intended environment
+[ ] The smallest relevant public case completes
+[ ] CPU/GPU numerical acceptance checks pass
+[ ] Relevant MPI-rank counts pass when communication changed
+[ ] Continuous and restarted runs agree when state changed
+[ ] Regular-step timing has no unexplained regression
+[ ] Source inventory, environment controls, and testcase record are current
+[ ] Repository readiness checks pass
 ```

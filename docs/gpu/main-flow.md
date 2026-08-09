@@ -1,55 +1,52 @@
 # Main Timestep Flow
 
-The current GPU branch keeps the original LESGO timestep structure. The port changes where work is executed and how data is exchanged, not the physical model ordering.
+The GPU release keeps the original LESGO timestep ordering. Porting changes
+execution location and data movement, not the sequence of physical operators.
 
-## Runtime Sections
-
-The main loop reports the following cumulative module sections. The latest post-cleanup short validation used the actuator turbine model case on Derecho.
-
-| Section | Main Purpose | Primary Files | 1 MPI / 1 GPU Step-10 Time | 2 MPI / 2 GPU Step-10 Time | GPU Porting Status |
-|---|---|---|---:|---:|---|
-| Forcing | ATM, inflow/fringe, applied forcing | `forcing.f90`, `atm_lesgo_interface.f90`, `actuator_turbine_model.f90` | 0.001192 s | 0.001106 s | GPU-enabled; point-owner LB remains experimental |
-| Derivatives | Spatial derivatives, filtering support | `derivatives.f90`, `test_filtermodule.f90` | 0.017776 s | 0.009083 s | GPU-enabled |
-| SGS & Stresses | Dynamic SGS, stress tensor, divstress | `sgs_stag_util.f90`, `divstress_uv.f90`, `divstress_w.f90` | 0.022613 s | 0.012779 s | GPU-enabled with optimized 2-rank halo |
-| Convection | Nonlinear convective terms | `convec.f90` and reference variants | 0.039461 s | 0.020110 s | GPU-enabled |
-| Pressure Solver | RHS, cuFFT, transpose-Thomas, inverse | `press_stag_array.f90`, `tridag_array.f90` | 0.010828 s | 0.012686 s | GPU-enabled; multi-GPU pressure remains communication-sensitive |
-| Projection | Velocity projection and pressure gradient correction | `forcing.f90`, pressure/projection helpers | 0.001794 s | 0.001102 s | GPU-enabled |
-| Other | Timers, reductions, residual overhead | `main.f90`, diagnostics, MPI bookkeeping | 0.011531 s | 0.006615 s | Mostly CPU bookkeeping plus unavoidable synchronization |
-
-## Timestep Order
+## Timestep order
 
 ```text
-initialize state and device mirrors
-for each timestep:
-  update forcing / ATM state
-  compute derivatives
-  build SGS model and stresses
-  compute convection
-  solve pressure Poisson equation
-  project velocity field
-  update diagnostics and output counters
-finalize
+forcing and turbine phase 1
+derivatives
+SGS model and stress construction
+convection and stress divergence
+turbine force application
+pressure solve
+pressure-gradient update
+velocity projection
+diagnostics and scheduled output
 ```
 
-The GPU port preserves this ordering. Optimizations focused on reducing data migration, fusing or enlarging underfilled kernels, using CUDA-aware MPI with contiguous buffers, and avoiding unnecessary `cudaDeviceSynchronize()` calls.
+| Section | Main files | GPU status |
+| --- | --- | --- |
+| Forcing and turbines | `forcing.f90`, `atm_lesgo_interface.f90`, `actuator_turbine_model.f90` | ADM/ATM sampling and force paths covered |
+| Derivatives and filtering | `derivatives.f90`, `test_filtermodule.f90` | Full-domain GPU kernels |
+| SGS and stresses | `sgs_stag_util.f90`, dynamic/Lagrangian SGS files, `divstress_*.f90` | Disabled SGS and models `1` to `5` covered |
+| Convection | `convec.f90` | GPU hot path |
+| Pressure | `press_stag_array.f90`, `tridag_gpu.f90`, transpose support | cuFFT, GPU tridiagonal work, GPU-aware MPI path |
+| Projection | `forcing.f90` and pressure-gradient helpers | GPU hot path |
+| Optional transport/geometry | `scalars.f90`, CPS, inflow/forcing, Level Set files | Covered by dedicated compact cases |
+| Diagnostics and output | `main.f90`, `io.f90`, output helpers | Host-visible by design |
 
-## Data Ownership
+Periodic output, statistics, or model updates can make a printed timestep slower
+than adjacent ordinary steps. Performance comparisons therefore use a window of
+ordinary steps and report periodic work separately; a single multiple-of-50
+step is not a solver-average measurement.
 
-The main solver still uses the original one-dimensional z-slab decomposition. Each MPI rank owns a slab in `z`, including halo regions required by derivatives, SGS, pressure RHS, and projection. Multi-GPU work maps one local MPI rank to one GPU.
+## Ownership
 
-Pressure is the main exception internally: the optimized pressure solver uses a pressure-only transpose-Thomas helper so full vertical lines can be solved efficiently while preserving the outer z-slab decomposition.
+`sim_param.f90` owns the principal field arrays. GPU modules expect these arrays
+to be present throughout the timestep. MPI routines consume packed device
+buffers on a GPU-aware stack and compact host buffers on the fallback path.
 
-## Numerical Release Gates
+ATM is split into two ordered phases: sampling/model updates before the LES
+operators, then force deposition/application at the original forcing site.
+Level Set follows the same rule: host geometry setup precedes persistent device
+work during the timestep.
 
-| Diagnostic | Purpose |
-|---|---|
-| Velocity divergence metric | Projection/pressure correctness |
-| Kinetic energy | Global flow consistency |
-| Bottom wall stress | Boundary and SGS/wall model consistency |
-| Force sums and turbine quantities | ATM correctness when forcing paths change |
-| Module timing | Regression detection |
+## Release diagnostics
 
-| Case | Divergence | KE | Bot Wall Stress | Step Time |
-|---|---:|---:|---:|---:|
-| 1 MPI / 1 GPU | `0.2681679E-03` | `0.4998491E+00` | `0.8686115E-05` | `0.1051949 s` |
-| 2 MPI / 2 GPU | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` | `0.0634820 s` |
+Changes to active solver paths are checked with divergence, kinetic energy,
+wall stress, field norms/differences, and model-specific quantities such as
+turbine force, thrust, torque, and power. Restart tests are required when the
+changed routine owns state carried between runs.

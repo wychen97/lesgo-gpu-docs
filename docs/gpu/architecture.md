@@ -1,73 +1,69 @@
 # GPU Architecture
 
-The GPU port follows a conservative rule: preserve LESGO numerics and module ordering, then move repeated timestep work to the GPU. The code uses CUDA Fortran, CUF kernel loops, cuFFT, OpenACC in the explicit-residency route, and GPU-aware MPI.
+The port preserves LESGO's equations, timestep order, and z-slab MPI
+decomposition. GPU work is organized around explicit data ownership rather than
+a second solver implementation.
 
-## Core Design Rules
+## Design rules
 
-| Rule | Reason |
-|---|---|
-| Keep the original solver equations | Makes validation against CPU LESGO meaningful |
-| Keep the z-slab MPI decomposition | Limits architectural risk and preserves existing MPI assumptions |
-| Use GPU kernels for timestep loops | Removes CPU bottlenecks without changing physics |
-| Use persistent contiguous device buffers for MPI | Avoids non-contiguous managed-memory MPI hazards |
-| Keep I/O and one-time parsing on CPU | They do not dominate timestep performance |
-| Keep fallback switches only for core risk areas | Reduces code clutter while preserving debugging ability |
+| Rule | Consequence |
+| --- | --- |
+| Preserve the CPU numerical method | CPU/GPU comparisons remain meaningful |
+| Keep hot arrays resident | Full fields are not copied during an ordinary timestep |
+| Use explicit communication buffers | MPI does not depend on noncontiguous Fortran sections |
+| Synchronize at real dependencies | Kernel-wide synchronization is not added only for timing convenience |
+| Keep setup and I/O on the host | One-time work does not complicate the timestep path |
+| Retain a correct host-staged MPI route | The same source can run where device-buffer MPI is unavailable |
 
-## Memory Model
+## Memory model
 
-The mature GPU path uses NVHPC CUDA Fortran and managed/device allocations where appropriate. The most important performance rule is to avoid accidental host touches of large managed arrays inside the timestep. Host reductions and diagnostics can silently trigger migration and create false bottlenecks.
+NVHPC GPU builds use separate host and device memory:
 
-The `gpu-explicit-residency-wip` branch adds a stricter route: ordinary host allocatables with persistent OpenACC/CUDA device mirrors, plus explicit host/device movement at call-site boundaries. This is a work in progress. The branch still uses `-gpu=mem:managed` for compatibility while remaining modules are converted.
-
-Use this distinction when reviewing code:
-
-| Storage pattern | Current role |
-|---|---|
-| Managed allocation | Still present in fallback and incomplete paths |
-| Explicit device mirror | Preferred for hot timestep arrays |
-| OpenACC `declare create` mirror | Used in selected `PPLES_GPU` host-allocatable paths |
-| Persistent CUDA device buffer | Preferred for MPI pack/unpack and hot derived-type data |
-
-Prefer full-domain kernels for regular loops:
-
-```fortran
-!$cuf kernel do(3) <<<*,*>>>
-do k = kstart, kend
-  do j = 1, n2m
-    do i = 1, n1m
-      field(i,j,k) = ...
-    end do
-  end do
-end do
+```text
+-gpu=mem:separate
 ```
 
-Use explicit CUDA Fortran kernels when CUF kernel loops create poor launch geometry, too many small launches, or excessive integer flattening overhead.
+Derecho A100 builds also specify `cc80` and `lineinfo`. Core fields declared in
+`sim_param.f90` have persistent device mirrors in the GPU configuration.
+Timestep modules use `present(...)` regions or persistent CUDA device arrays.
 
-## MPI And GPU Awareness
+Full-field host/device updates belong only at named boundaries:
 
-The production multi-GPU path assumes GPU-aware MPI:
+- initial conditions and restart input;
+- output and validation snapshots;
+- diagnostics that explicitly consume host data;
+- documented compatibility bridges for optional model operations.
 
-```bash
-export MPICH_GPU_SUPPORT_ENABLED=1
-```
+Adding an unmarked `update self` to a regular timestep routine is a performance
+and correctness risk under separate-memory compilation.
 
-The main MPI safety points are:
+## MPI model
 
-| Communication Area | Current Pattern |
-|---|---|
-| SGS tau halo | Combined contiguous device halo for the 2-rank path |
-| SGS dwdz halo | Device-buffer path retained; further MPI variants were not beneficial |
-| Pressure RHS halo | Combined contiguous device halo for the 2-rank path |
-| Pressure transpose | Specialized nproc==2 transpose-Thomas helper |
-| ATM point-owner LB | Experimental targeted device exchange path |
+Each MPI rank owns a z slab and normally maps to one GPU. Halo exchanges and the
+pressure pipeline use contiguous buffers. With `USE_GPU_AWARE_MPI=AUTO`, CMake
+selects the Cray GTL route on supported Cray systems. A host-staged fallback is
+compiled when GPU-aware communication is disabled or unavailable.
 
-## Synchronization Policy
+The pressure solver performs its internal transpose/tridiagonal work without
+changing the outer solver decomposition. A full pencil decomposition is not
+part of the current release: at the validated problem sizes, the additional
+transpose, memory, and implementation cost has not justified replacing the
+existing slab layout.
 
-| Synchronization Type | Policy |
-|---|---|
-| Before MPI consumes GPU data | Required |
-| After diagnostic GPU events | Only when timing is enabled |
-| Per-small-kernel strict sync | Disabled by default |
-| Global debug sync | Available through `LESGO_MPI_CUDA_SYNC` |
+## Synchronization
 
-When adding a new MPI exchange, pack into a contiguous device buffer, synchronize once before MPI if necessary, exchange, unpack on GPU, and validate with divergence, KE, wall stress, and module-specific checks.
+Synchronization is required before MPI or the host consumes pending device
+data. Diagnostic event synchronization is enabled only when that diagnostic is
+requested. `LESGO_MPI_CUDA_SYNC=1` adds stricter synchronization for debugging
+and is not a production performance setting.
+
+## Mixed CPU/GPU boundaries
+
+ATM keeps blade and force exchange data on the device for the normal path, while
+parts of turbine control and structural mechanics remain host model code.
+Level Set geometry is initialized on the host, then geometry, overlap buffers,
+interpolation workspaces, and regular forcing operations remain device-resident
+when `USE_LVLSET_GPU=ON`.
+
+These boundaries are deliberate. They should be changed only with a matched
+CPU/GPU case and a restart check when persistent state is involved.

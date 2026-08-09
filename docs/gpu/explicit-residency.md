@@ -1,71 +1,51 @@
-# Explicit Residency WIP Branch
+# Current Release
 
-The current explicit-residency work is available in the LESGO source repository as:
+The maintained release is the `main` branch of
+[`wychen97/lesgo-gpu-porting`](https://github.com/wychen97/lesgo-gpu-porting).
+This page reflects source checkpoint
+`f46eca2fbaad00793da140ce77de4830b3098026`.
 
-```text
-gpu-explicit-residency-wip
-```
+## Implementation status
 
-Source branch:
+The solver now builds its GPU path with NVHPC separate-memory mode. Core LES
+arrays have persistent device storage, and copies are made at defined setup,
+restart, output, diagnostic, or compatibility boundaries. Regular timesteps do
+not depend on implicit managed-memory migration.
 
-[wychen97/lesgo/tree/gpu-explicit-residency-wip](https://github.com/wychen97/lesgo/tree/gpu-explicit-residency-wip)
+| Component | Release status |
+| --- | --- |
+| Derivatives, convection, pressure, projection | GPU-enabled |
+| SGS/stress models | GPU-enabled for disabled SGS and values `1` through `5` |
+| ADM and ATM | GPU-enabled; ATM includes rigid and structural configurations |
+| Scalar transport | GPU-enabled when both `USE_SCALARS` and `USE_SCALARS_GPU` are on |
+| Concurrent precursor | CPU/GPU compact validation available, including scalar coupling |
+| Inflow and forcing | HIT, shifted inflow, Coriolis, and sponge compact checks available |
+| Level Set | GPU path and CPU/GPU restart matrix validated on Derecho and Delta |
 
-This branch is intended for collaborator testing and code review. It is **not** a final production release.
+## Compatibility boundaries
 
-## What This Branch Is Testing
+Some work remains intentionally on the host:
 
-The purpose is to move active timestep data away from implicit CUDA managed-memory migration and toward explicit device residency:
+- configuration parsing and file I/O;
+- one-time geometry and model setup;
+- selected diagnostics and validation snapshots;
+- documented compatibility paths for model operations that are not regular
+  full-field timestep kernels.
 
-| Area | Current explicit-residency work |
-|---|---|
-| Build route | Adds `USE_LES_GPU=ON` and `PPLES_GPU` compile-time path |
-| Core GPU modules | Adds helper modules for FFT, tridiagonal solve, convection, derivatives, pressure, Lagrangian SGS, and SGS kernels |
-| ATM force metadata | Adds persistent GPU force-field shadow arrays |
-| ATM blade data | Adds explicit device mirrors for blade points and blade forces |
-| ATM gather path | Packs/unpacks blade forces through device mirrors in the normal slim GPU gather path |
-| Nacelle scratch | Converts the small nacelle scratch buffer to explicit device storage in the `PPLES_GPU` path |
+These boundaries are not evidence that the solver uses managed memory. The
+GPU build uses `-gpu=mem:separate`; host and device ownership must therefore be
+explicit.
 
-The design goal is direct: keep hot timestep arrays resident on the GPU, use explicit copies only at known boundaries, and avoid hidden managed-memory migrations caused by host touches.
+## Release gates
 
-## What Is Still Not Complete
+A change is ready for `main` only after the relevant checks pass:
 
-Managed memory has **not** been fully removed.
+1. strict CMake configuration and compilation on a supported cluster;
+2. the case-specific CPU/GPU numerical comparison;
+3. restart continuity when the changed state persists across a checkpoint;
+4. MPI-rank coverage appropriate to the changed communication path;
+5. repository readiness checks and documentation checks.
 
-The branch still compiles with:
-
-```text
--gpu=mem:managed
-```
-
-This remains necessary because fallback paths and some non-refactored modules still depend on managed-memory semantics. Do not remove this flag until each remaining managed-memory island has an explicit device-resident replacement and has passed validation.
-
-## Current Validation Level
-
-The latest strict checks on Derecho were short ATM validation runs:
-
-| Check | Result |
-|---|---|
-| Experimental build | `build_acc_residency` passed |
-| Default build | `build_codex_default` passed |
-| 1 GPU ATM short validation | Passed |
-| 2 GPU ATM short validation | Passed |
-| Divergence | `0.1466988E-03` |
-| Kinetic energy | `0.4999399E+00` |
-| Bottom wall stress | `0.2316200E-05` |
-
-The point-owner ATM load-balancing path remains experimental. It has run as a smoke test, but it should not be treated as production-validated until strict same-step force, thrust, torque, power, and flow-field comparisons are completed.
-
-## Recommended Collaborator Workflow
-
-1. Build the default executable and the explicit-residency executable from a clean checkout.
-2. Run the existing short ATM validation on 1 GPU and 2 GPUs.
-3. Confirm divergence, kinetic energy, and bottom wall stress match the recorded values above.
-4. Audit remaining `managed` declarations before removing `-gpu=mem:managed`.
-5. Convert one module at a time to explicit device residency.
-6. After each conversion, rerun both build targets and the short validation.
-
-## Branch Policy
-
-Use this branch as a WIP integration point. Do not present it as fully managed-free or fully optimized. The correct claim is:
-
-> The branch introduces an explicit-residency route and validates selected active ATM paths, while preserving managed-memory compatibility for fallback and incomplete modules.
+The public compact cases are designed for these gates. Production performance
+claims require a separate, controlled benchmark with identical physics, grid,
+MPI layout, output settings, and averaging rules.

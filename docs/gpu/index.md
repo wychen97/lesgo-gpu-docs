@@ -1,51 +1,33 @@
-# LESGO GPU Porting Guide
+# Overview
 
-This documentation is an engineering handoff for the GPU-ported LESGO branches. It is written for developers who already understand the original CPU LESGO code and need to understand what changed, where the GPU paths live, how MPI/GPU ownership works, and how to modify the code without breaking validated behavior.
+The GPU port keeps the original LESGO equations, timestep order, input format,
+and z-slab MPI decomposition. The main changes are implementation changes:
+loop-heavy timestep work runs on GPUs, active arrays remain device-resident,
+and supported MPI stacks exchange device buffers directly.
 
-The official target is FP64. The mature GPU path assumes CUDA Fortran with NVHPC, CUDA-aware MPI, and the current z-slab MPI decomposition. A separate work-in-progress branch, `gpu-explicit-residency-wip`, is now available for collaborator testing of the explicit device-residency refactor.
+The public release is maintained on the `main` branch of
+[`wychen97/lesgo-gpu-porting`](https://github.com/wychen97/lesgo-gpu-porting).
+It replaces the older `gpu-explicit-residency-wip` development branch.
 
-## What This Guide Covers
+## Scope
 
-| Topic | Where To Read |
-|---|---|
-| Main timestep ownership and timings | [Main Timestep Flow](main-flow.md) |
-| Current explicit-residency WIP branch | [Explicit Residency WIP](explicit-residency.md) |
-| GPU memory, synchronization, and MPI rules | [GPU Architecture](architecture.md) |
-| Derecho build and runtime controls | [Build And Runtime](build-runtime.md) |
-| Correctness checks and performance baselines | [Validation And Performance](validation-performance.md) |
-| Detailed module porting notes | [Module Notes](modules/core-solver.md) |
-| Generated 69-file audit matrix | [File Audit](file-audit.md) |
+| Area | Current state |
+| --- | --- |
+| LES core | GPU path for derivatives, convection, SGS/stresses, pressure, projection, and forcing |
+| SGS selection | Disabled path and runtime models `1` through `5` covered |
+| Turbines | ADM and ATM paths, including the optional ATM structural solver |
+| Optional physics | Scalar transport, concurrent precursor, HIT/shifted inflow, Coriolis/sponge, and Level Set examples |
+| MPI | GPU-aware path with a host-staged fallback selected by CMake |
+| Restart | CPU/GPU continuation checks, including ATM history fields and Level Set restart matrices |
+| I/O and setup | Host-side where the work is outside the regular timestep hot path |
 
-## Current Branch Status
+## Reading order
 
-There are two distinct states to keep separate:
+1. [Current Release](explicit-residency.md) defines what is supported.
+2. [Public Test Cases](test-cases.md) lists the runnable examples.
+3. [Build and Runtime](build-runtime.md) gives an exact Derecho build and submit sequence.
+4. [GPU Architecture](architecture.md) records data ownership and MPI rules.
+5. [Validation and Performance](validation-performance.md) separates current release checks from historical benchmark results.
 
-| Branch/status | Meaning |
-|---|---|
-| Mature optimized GPU path | Validated module-by-module for the documented short benchmarks |
-| `gpu-explicit-residency-wip` | WIP refactor toward explicit GPU residency; not fully managed-free and not final production code |
-
-The explicit-residency branch still compiles with `-gpu=mem:managed` because some fallback paths and non-refactored modules still depend on managed-memory semantics. Its purpose is to let collaborators test and continue the residency refactor, not to claim that all managed memory has been removed.
-
-## How To Regenerate The File Audit
-
-The file audit is generated directly from the repository sources:
-
-```bash
-cd /glade/u/home/wchen/lesgo-gpu-test
-python3 tools/generate_gpu_file_audit.py
-```
-
-This refreshes `docs/gpu/file-audit.md` with the current file list, procedure inventory, GPU markers, retained switches, and developer notes.
-
-## Scope Boundaries
-
-The documentation separates three categories of code:
-
-| Category | Policy |
-|---|---|
-| Runtime timestep kernels | GPU-enabled or explicitly documented |
-| MPI exchange and transpose paths | GPU-aware, contiguous-buffer based where validated |
-| I/O, parsing, and one-time initialization | May remain CPU if they do not affect timestep performance |
-
-If future work changes any production GPU path, update the relevant module page and rerun the file audit generator.
+Any new feature should add a small CPU/GPU case, preserve the original input
+contract where possible, and update the source audit in the code repository.

@@ -1,30 +1,40 @@
-<section class="lesgo-hero">
-  <div class="lesgo-kicker">CUDA Fortran | GPU-aware MPI | FP64</div>
-  <h1>LESGO GPU Porting Guide</h1>
-  <p>A concise engineering handoff for the CUDA Fortran port of LESGO: what changed, how to build it, how the GPU/MPI paths are validated, and where each Fortran file fits.</p>
-  <div class="lesgo-actions">
-    <a class="lesgo-button primary" href="gpu/">Read The Guide</a>
-    <a class="lesgo-button" href="gpu/cmake-environment/">Build Setup</a>
-    <a class="lesgo-button" href="gpu/validation-performance/">Benchmark</a>
-    <a class="lesgo-button" href="gpu/file-audit/">File Audit</a>
-  </div>
-</section>
+# LESGO GPU Porting Guide
 
-<div class="lesgo-grid">
-  <div class="lesgo-card"><strong>Porting Map</strong><span>Main timestep sections, ownership, and module-level GPU status.</span></div>
-  <div class="lesgo-card"><strong>Validation Data</strong><span>CPU/GPU timing, module breakdowns, and flow-field comparison plots.</span></div>
-  <div class="lesgo-card"><strong>Source Audit</strong><span>Generated inventory of Fortran files, procedures, GPU markers, and runtime relevance.</span></div>
-</div>
+This site documents the public LESGO GPU implementation: its build options,
+runtime model, validation cases, and the source boundaries that matter when the
+solver is changed.
 
-## Quick Links
+The maintained source is
+[`wychen97/lesgo-gpu-porting`](https://github.com/wychen97/lesgo-gpu-porting).
+The current `main` branch uses NVHPC, explicit device residency, CUDA-aware MPI
+where available, and the original LESGO z-slab decomposition.
 
-| Need | Page |
-|---|---|
-| Build the GPU code | [CMake And Environment](gpu/cmake-environment/) |
-| Understand timestep modules | [Main Timestep Flow](gpu/main-flow/) |
-| Review GPU/MPI architecture | [GPU Architecture](gpu/architecture/) |
-| View benchmark plots | [Validation And Performance](gpu/validation-performance/) |
-| Inspect every Fortran file | [File-By-File GPU Audit](gpu/file-audit/) |
+## Current release
+
+| Item | Status |
+| --- | --- |
+| Source branch | `main` |
+| Documentation checkpoint | `f46eca2fbaad00793da140ce77de4830b3098026` |
+| Arithmetic | FP64 |
+| GPU memory model | Separate host/device memory with persistent device data |
+| Validated systems | Derecho A100 and Delta A100 RH96 |
+| Public examples | Eight cases under `test-cases/` |
+
+## Documentation
+
+| Topic | Page |
+| --- | --- |
+| Release scope and limitations | [Current Release](gpu/explicit-residency.md) |
+| Runnable examples | [Public Test Cases](gpu/test-cases.md) |
+| Compilation and submission | [Build and Runtime](gpu/build-runtime.md) |
+| CMake options and cluster environments | [CMake and Environment](gpu/cmake-environment.md) |
+| GPU ownership and MPI rules | [GPU Architecture](gpu/architecture.md) |
+| Validation evidence and historical benchmarks | [Validation and Performance](gpu/validation-performance.md) |
+| Source audit references | [Source Inventory](gpu/file-audit.md) |
+
+The compact validation cases establish build, execution, restart, and
+CPU/GPU numerical parity. They are not substitutes for statistically converged
+turbulence or production-scale performance studies.
 
 <div class="lesgo-affiliation-logo">
   <img src="assets/rosei-logo-footer.png" alt="Johns Hopkins Ralph O'Connor Sustainable Energy Institute" width="220">

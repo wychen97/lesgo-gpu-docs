@@ -1,11 +1,32 @@
-# Validation And Performance
+# Validation and Performance
 
-This page keeps two separate validation records:
+Validation is recorded at two levels:
 
-- the default `128^3` half-channel physics validation requested for turbulence realism;
-- the short `480 x 240 x 240` actuator-turbine benchmark used for CPU/GPU performance comparisons.
+- current release checks for build, execution, numerical parity, and restart;
+- historical physics and performance records that remain useful as reference.
 
-## Default Half-Channel Validation
+## Current release matrix
+
+| Case | Coverage | Latest recorded result |
+| --- | --- | --- |
+| `channel_flow` | LES core | Derecho CPU/GPU pass, `240^3`, 200 steps |
+| `adm_disk` | Actuator disk | Derecho CPU/GPU pass, `240^3`, 200 steps |
+| `atm_line` | Actuator line, rigid and structural | Derecho CPU/GPU passes, `240^3` |
+| `large_windfarm_3072x384x400_60turbines` | Large ATM execution | Derecho CPU50/GPU16 pass, 50 steps |
+| `level_set_cubes` | CPU/GPU, MPI, restart, two clusters | Derecho and Delta matrix/restart passes, 58 runtime tasks |
+| `scalar_transport` | Passive and active scalar | Derecho compact CPU/GPU passes, `64^3` |
+| `concurrent_precursor` | Velocity and scalar-coupled red/blue domains | Derecho compact CPU/GPU passes, two `64^3` domains |
+| `inflow_and_forcing` | HIT, shifted inflow, Coriolis, sponge | Derecho compact CPU/GPU passes, `64^3` |
+
+The Level Set matrix includes 58 runtime tasks and 51 CPU/GPU comparison pairs
+across one, two, and four MPI ranks. Its continuation checks passed 18 of 18
+comparisons on both Derecho and Delta RH96.
+
+Compact cases establish implementation correctness at their tested settings.
+They do not by themselves establish production scaling, statistically converged
+turbulence, or a performance advantage for every hardware configuration.
+
+## Historical `128^3` half-channel physics record
 
 This page records the physics validation requested for the standard LESGO half-channel case: no turbines, pressure-gradient forcing, rough-wall lower boundary, and periodic horizontal directions. The purpose is not a short deterministic CPU/GPU bitwise check; it is to confirm that the GPU port still produces a physically turbulent channel-flow solution.
 
@@ -93,7 +114,7 @@ The spectrum below is computed from the full 3D instantaneous velocity snapshots
 
 The GPU result passes the current physical validation gate for this stage: the mean profile follows the expected log-law trend, the Reynolds-stress profiles have the correct structure, and the instantaneous mid-plane field shows developed turbulent streaks and patches rather than laminar behavior.
 
-## 480x240x240 ATM Benchmark
+## Historical `480 x 240 x 240` ATM benchmark
 
 This is the short no-I/O verification case for the actuator turbine model at `480 x 240 x 240`. The comparison uses the same case setup and reports compute time only.
 
@@ -101,7 +122,7 @@ This is the short no-I/O verification case for the actuator turbine model at `48
 
 | Item | Setting |
 |---|---|
-| Case | `test-cases/actuator_turbine_model` |
+| Case | Earlier actuator-turbine validation setup; current public analogue is `test-cases/atm_line` |
 | Grid | `Nx=480`, `Ny=240`, `Nz=240` |
 | Active module | `USE_ATM=ON` |
 | Output policy | Heavy domain/plane output disabled for timing runs |
@@ -161,11 +182,15 @@ The figure compares the `z=2.5` velocity plane at step 10. The left and center p
 | 1 GPU / 1 MPI, step 10 | `0.2681679E-03` | `0.4998491E+00` | `0.8686115E-05` |
 | 2 GPUs / 2 MPI, step 10 | `0.2681714E-03` | `0.4998491E+00` | `0.8686115E-05` |
 
-### Reproduce
+### Current public workflow
 
 ```bash
-cd /glade/u/home/wchen/lesgo-gpu-test/test-cases/actuator_turbine_model
-qsub job_compare_cpu120.pbs
-qsub job_compare_gpu1_noio.pbs
-qsub job_compare_gpu2_noio.pbs
+git clone https://github.com/wychen97/lesgo-gpu-porting.git
+cd lesgo-gpu-porting/test-cases/atm_line
+./compile_derecho.sh gpu
+qsub submit_derecho.pbs
 ```
+
+This runs the maintained ATM example. The exact historical benchmark above is
+retained as a measurement record; its former private queue scripts are not part
+of the public release.

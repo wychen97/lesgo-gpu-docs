@@ -1,8 +1,8 @@
 site_name: LESGO GPU Porting Guide
-site_description: Public engineering handoff documentation for the LESGO CUDA Fortran GPU port.
+site_description: Build, validation, and maintenance notes for the LESGO GPU port.
 site_author: Wenyuan Chen
-repo_url: https://github.com/wychen97/lesgo-gpu-docs
-repo_name: wychen97/lesgo-gpu-docs
+repo_url: https://github.com/wychen97/lesgo-gpu-porting
+repo_name: wychen97/lesgo-gpu-porting
 
 docs_dir: docs
 
@@ -13,18 +13,20 @@ nav:
   - Home: index.md
   - GPU Porting Guide:
       - Overview: gpu/index.md
-      - Explicit Residency WIP: gpu/explicit-residency.md
+      - Current Release: gpu/explicit-residency.md
+      - Public Test Cases: gpu/test-cases.md
       - Main Timestep Flow: gpu/main-flow.md
       - GPU Architecture: gpu/architecture.md
-      - Build And Runtime: gpu/build-runtime.md
-      - CMake And Environment: gpu/cmake-environment.md
-      - Validation And Performance: gpu/validation-performance.md
-      - File Audit: gpu/file-audit.md
+      - Build and Runtime: gpu/build-runtime.md
+      - CMake and Environment: gpu/cmake-environment.md
+      - Validation and Performance: gpu/validation-performance.md
+      - Source Inventory: gpu/file-audit.md
+      - Developer Guide: gpu/developer-guide.md
   - Module Notes:
       - Derivatives, Convection, Projection: gpu/modules/core-solver.md
-      - SGS And Stresses: gpu/modules/sgs.md
+      - SGS and Stresses: gpu/modules/sgs.md
       - Pressure Solver: gpu/modules/pressure.md
-      - ATM And Forcing: gpu/modules/atm-forcing.md
+      - ATM and Forcing: gpu/modules/atm-forcing.md
       - Optional Modules: gpu/modules/optional-modules.md
 
 theme:

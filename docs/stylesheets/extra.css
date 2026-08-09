@@ -2,21 +2,13 @@
   --lesgo-ink: #10213f;
   --lesgo-muted: #52627a;
   --lesgo-blue: #002d72;
-  --lesgo-blue-mid: #0077d8;
+  --lesgo-blue-mid: #0066a8;
   --lesgo-blue-soft: #eaf2fb;
-  --lesgo-spirit: #68ace5;
-  --lesgo-teal: #008767;
-  --lesgo-cyan: #4e97e0;
-  --lesgo-green: #008767;
-  --lesgo-green-dark: #275e3d;
-  --lesgo-amber: #ff9e1b;
-  --lesgo-panel: #f7faff;
   --lesgo-line: #d7e4f3;
-  --lesgo-soft: #eff6fd;
 }
 
 .md-header {
-  background: linear-gradient(90deg, #002d72 0%, #004b9b 58%, #0077d8 100%);
+  background: var(--lesgo-blue);
   box-shadow: 0 1px 0 rgba(0, 45, 114, 0.22);
 }
 
@@ -25,7 +17,7 @@
 }
 
 .md-main {
-  background: linear-gradient(180deg, #edf5fc 0, #ffffff 18rem);
+  background: #ffffff;
 }
 
 .md-typeset {
@@ -35,14 +27,14 @@
 
 .md-typeset h1 {
   color: var(--lesgo-blue);
-  font-weight: 850;
+  font-weight: 800;
   letter-spacing: 0;
   margin-bottom: 0.75rem;
 }
 
 .md-typeset h2 {
   color: var(--lesgo-ink);
-  font-weight: 780;
+  font-weight: 750;
   letter-spacing: 0;
   margin-top: 2rem;
   padding-bottom: 0.22rem;
@@ -51,30 +43,28 @@
 
 .md-typeset h3 {
   color: #19345f;
-  font-weight: 720;
+  font-weight: 700;
 }
 
-.md-typeset p, .md-typeset li {
+.md-typeset p,
+.md-typeset li {
   color: #263247;
 }
 
 .md-typeset a {
-  color: var(--lesgo-blue);
-}
-
-.md-typeset a:hover {
   color: var(--lesgo-blue-mid);
 }
 
+.md-typeset a:hover {
+  color: var(--lesgo-blue);
+}
+
 .md-typeset code {
-  border-radius: 5px;
+  border-radius: 3px;
 }
 
 .md-typeset table:not([class]) {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 10px 28px rgba(0, 45, 114, 0.055);
-  border-top: 3px solid rgba(0, 45, 114, 0.16);
+  border: 1px solid var(--lesgo-line);
   background: #ffffff;
 }
 
@@ -82,136 +72,18 @@
   background: var(--lesgo-blue-soft);
   color: var(--lesgo-blue);
   border-bottom: 1px solid var(--lesgo-line);
-  font-weight: 760;
+  font-weight: 700;
 }
 
 .md-typeset table:not([class]) td {
   vertical-align: top;
 }
 
-.lesgo-hero {
-  display: grid;
-  gap: 1rem;
-  padding: clamp(1.35rem, 3vw, 2.25rem);
-  border: 1px solid var(--lesgo-line);
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(0,45,114,0.12) 0%, rgba(104,172,229,0.13) 54%, rgba(255,255,255,0.98) 100%),
-    #ffffff;
-  margin: 0.55rem 0 1.35rem;
-  box-shadow: 0 18px 42px rgba(0, 45, 114, 0.08);
-}
-
-.lesgo-kicker {
-  width: fit-content;
-  padding: 0.28rem 0.55rem;
-  border: 1px solid #b9d8f4;
-  border-radius: 999px;
-  color: var(--lesgo-blue);
-  background: #f4f8fd;
-  font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.lesgo-hero h1 {
-  margin: 0;
-  font-size: clamp(2.05rem, 5vw, 3.5rem);
-  line-height: 1.02;
-}
-
-.lesgo-hero p {
-  max-width: 58rem;
-  margin: 0;
-  color: var(--lesgo-muted);
-  font-size: 1.03rem;
-}
-
-.lesgo-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.62rem;
-}
-
-.lesgo-button {
-  display: inline-block;
-  padding: 0.64rem 0.92rem;
-  border-radius: 8px;
-  border: 1px solid #b9d8f4;
-  background: #ffffff;
-  color: var(--lesgo-blue) !important;
-  font-weight: 760;
-  text-decoration: none !important;
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
-}
-
-.lesgo-button:hover {
-  transform: translateY(-1px);
-  border-color: var(--lesgo-blue);
-  box-shadow: 0 8px 20px rgba(0, 45, 114, 0.16);
-}
-
-.lesgo-button.primary {
-  background: var(--lesgo-blue);
-  color: #ffffff !important;
-  border-color: var(--lesgo-blue);
-}
-
-.lesgo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
-  gap: 0.85rem;
-  margin: 1rem 0 1.4rem;
-}
-
-.lesgo-card {
-  border: 1px solid var(--lesgo-line);
-  border-radius: 8px;
-  padding: 1rem;
-  background: #ffffff;
-  box-shadow: 0 10px 28px rgba(0, 45, 114, 0.055);
-  border-top: 3px solid rgba(0, 45, 114, 0.16);
-}
-
-.lesgo-card strong {
-  display: block;
-  margin-bottom: 0.35rem;
-  color: var(--lesgo-ink);
-  font-size: 0.94rem;
-}
-
-.lesgo-card span {
-  color: var(--lesgo-muted);
-}
-
-.lesgo-callout {
-  border-left: 4px solid var(--lesgo-green);
-  background: #f3fbf8;
-  padding: 0.9rem 1rem;
-  border-radius: 0 8px 8px 0;
-  margin: 1rem 0;
-}
-
-.lesgo-status {
-  display: inline-block;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  font-size: 0.68rem;
-  font-weight: 800;
-  color: var(--lesgo-green-dark);
-  background: #d9f0e9;
-  vertical-align: middle;
-}
-
 .lesgo-image-frame {
   border: 1px solid var(--lesgo-line);
-  border-radius: 8px;
   padding: 0.75rem;
   background: #ffffff;
   margin: 1rem 0 1.5rem;
-  box-shadow: 0 12px 30px rgba(0, 45, 114, 0.052);
 }
 
 .lesgo-image-frame img {
@@ -219,13 +91,6 @@
   height: auto;
   display: block;
 }
-
-@media screen and (min-width: 76.25em) {
-  .md-grid {
-    max-width: 80rem;
-  }
-}
-
 
 .lesgo-affiliation-logo {
   display: flex;
@@ -241,4 +106,20 @@
   max-width: 58%;
   height: auto;
   opacity: 0.92;
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-grid {
+    max-width: 80rem;
+  }
+}
+
+@media screen and (max-width: 44.99em) {
+  .md-typeset__scrollwrap {
+    margin-right: 0;
+  }
+
+  .md-typeset__table table {
+    min-width: 38rem;
+  }
 }

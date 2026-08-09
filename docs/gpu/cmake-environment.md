@@ -1,105 +1,92 @@
-# CMake And Environment
+# CMake and Environment
 
-This page shows the recommended way to build the GPU branch. The short version is: use the build script when possible, pass CMake options through the command line, and keep `lesgo.conf` consistent with the MPI layout used at runtime.
+## CMake options
 
-## Recommended Derecho Build
+The root `CMakeLists.txt` is the option registry. Case scripts select a valid
+combination with command-line `-D` arguments.
+
+| Option | Meaning |
+| --- | --- |
+| `USE_MPI` | MPI domain decomposition |
+| `USE_LES_GPU` | Explicit-residency GPU LES core |
+| `USE_CPU_BUILD` | Matched NVHPC CPU baseline; cannot be combined with `USE_LES_GPU` |
+| `USE_GPU_AWARE_MPI` | `AUTO`, `ON`, or `OFF` device-buffer communication policy |
+| `USE_TURBINES` | Actuator disk model |
+| `USE_ATM` | Actuator line/section turbine model |
+| `USE_SCALARS` | Scalar transport equations |
+| `USE_SCALARS_GPU` | GPU scalar path; requires `USE_SCALARS=ON` and `USE_LES_GPU=ON` |
+| `USE_CPS` | Concurrent precursor; requires MPI |
+| `USE_HIT` | Homogeneous isotropic turbulence input |
+| `USE_LVLSET` | Level Set immersed-surface model |
+| `USE_LVLSET_GPU` | GPU Level Set path; requires `USE_LVLSET=ON` and `USE_LES_GPU=ON` |
+| `USE_DYN_TN` | Dynamic Lagrangian averaging timescale |
+| `USE_SAFETYMODE` | Additional runtime checks |
+| `USE_CGNS` | CGNS output support and external dependency |
+
+For GPU scalar transport, both scalar options must be enabled:
 
 ```bash
-cd /glade/u/home/wchen/lesgo-gpu-test
-BUILD_JOBS=8 ./derecho_build_gpu.sh
+-DUSE_SCALARS=ON -DUSE_SCALARS_GPU=ON -DUSE_LES_GPU=ON
 ```
 
-The script loads the GPU toolchain, configures CMake, builds the executable, and installs it into the ATM test case as:
+For GPU Level Set, both Level Set options must be enabled:
 
-```text
-test-cases/actuator_turbine_model/lesgo-mpi-ATM
+```bash
+-DUSE_LVLSET=ON -DUSE_LVLSET_GPU=ON -DUSE_LES_GPU=ON
 ```
 
-## Environment Loaded By The Build Script
+CMake rejects invalid combinations during configuration.
+
+## Derecho environment
+
+The latest documented Derecho profile uses:
 
 ```bash
 module --force purge
-module load ncarenv/25.10 craype/2.7.34 nvhpc/25.9 cuda/12.9.0             cray-mpich/8.1.32 cmake/3.31.8 fftw/3.3.10
+module load nvhpc/26.1 cuda/12.9.0 \
+  cray-mpich/8.1.32 fftw/3.3.10 cmake/3.31.8
+
 export FFTW_ROOT="$NCAR_ROOT_FFTW"
-```
-
-For `USE_CGNS=ON`, the script also loads HDF5-MPI and points CMake to the user-side CGNS install:
-
-```bash
-module load hdf5-mpi/1.14.6
-export CGNS_ROOT=/glade/u/home/wchen/local/cgns/4.5.2-nvhpc-hdf5mpi
-```
-
-## Core CMake Options
-
-| Option | Recommended ATM GPU setting | Notes |
-|---|---|---|
-| `USE_MPI` | `ON` | Production path |
-| `USE_ATM` | `ON` | Actuator turbine model case |
-| `USE_LES_GPU` | `ON` only for explicit-residency WIP testing | Builds `lesgo-mpi-ATM-lesgpu` and enables `PPLES_GPU` plus module GPU preprocessor paths |
-| `USE_CPS` | `OFF` | Optional precursor mode |
-| `USE_HIT` | `OFF` | Optional HIT input |
-| `USE_LVLSET` | `OFF` | Optional level-set path |
-| `USE_TURBINES` | `OFF` | Optional actuator disk model |
-| `USE_CGNS` | `OFF` | Output dependency; enable only when CGNS is configured |
-| `USE_SCALARS` | `OFF` | Optional scalar transport |
-| `USE_SAFETYMODE` | `ON` | Keep enabled unless testing release performance carefully |
-
-Equivalent manual configure command:
-
-```bash
-FC=ftn cmake -S . -B bld-derecho-a100   -DCMAKE_Fortran_COMPILER=ftn   -DUSE_MPI=ON   -DUSE_ATM=ON   -DUSE_CPS=OFF   -DUSE_HIT=OFF   -DUSE_LVLSET=OFF   -DUSE_TURBINES=OFF   -DUSE_CGNS=OFF   -DUSE_SCALARS=OFF
-cmake --build bld-derecho-a100 -j 8
-```
-
-For the explicit-residency WIP branch, add:
-
-```bash
--DUSE_LES_GPU=ON
-```
-
-That route is intended for collaborator testing. It still keeps managed-memory compatibility while active modules are being converted to explicit device residency.
-
-## Testing Other CMake Options
-
-Use `LESGO_CMAKE_ARGS` instead of editing `CMakeLists.txt` for one-off builds:
-
-```bash
-LESGO_CMAKE_ARGS="-DUSE_SCALARS=ON" BUILD_DIR=/glade/u/home/wchen/lesgo-gpu-test/bld-option-USE_SCALARS ./derecho_build_gpu.sh
-```
-
-This keeps the default ATM build clean while making option-specific testing reproducible.
-
-## Runtime Environment
-
-For GPU-aware MPI runs:
-
-```bash
 export MPICH_GPU_SUPPORT_ENABLED=1
 export MPICH_GPU_MANAGED_MEMORY_SUPPORT_ENABLED=1
 ```
 
-For one GPU:
+Use `ftn` as the Fortran compiler wrapper. The Derecho GPU profile compiles
+with FP64 and `-gpu=mem:separate,cc80,lineinfo`.
+
+## Delta RH96 environment
+
+The Level Set validation matrix also passed on Delta's RH96 environment using
+the RH96 login node and reservation:
 
 ```bash
-mpiexec -n 1 -ppn 1 set_gpu_rank ./lesgo-mpi-ATM
+ssh dt-login04.delta.ncsa.illinois.edu
+
+module reset
+module swap PrgEnv-gnu PrgEnv-nvidia
+module load nvidia/26.5 cudatoolkit/26.5_13.2 \
+  cray-mpich/9.1.0 cray-fftw/3.3.10.11 cmake/3.31.8
+
+export MPICH_GPU_SUPPORT_ENABLED=1
+export MPICH_GPU_MANAGED_MEMORY_SUPPORT_ENABLED=1
 ```
 
-For two GPUs on one node:
+Delta RH96 jobs use `#SBATCH --reservation=RH96`. Cluster module names change
+over time, so the checked-in scripts remain the reference for a recorded test;
+on another Cray/NVHPC cluster, replace the module block and scheduler header,
+then keep the CMake feature combination and rank decomposition unchanged.
 
-```bash
-mpiexec -n 2 -ppn 2 set_gpu_rank ./lesgo-mpi-ATM
-```
+## Portability rules
 
-Make sure the `nproc` value in `lesgo.conf` matches the MPI rank count.
+- Select the compiler with `FC` or `-DCMAKE_Fortran_COMPILER`; do not edit the
+  detected CMake compiler ID.
+- Load an MPI-compatible FFTW library before configuration.
+- Use the MPI compiler wrapper supplied by the cluster.
+- Keep one rank per GPU unless a new layout is measured and validated.
+- Set `USE_GPU_AWARE_MPI=OFF` when the MPI implementation cannot consume device
+  buffers directly.
+- Enable CGNS only after its HDF5/MPI-compatible installation is available.
 
-
-## Common Mistakes
-
-| Symptom | Likely cause |
-|---|---|
-| Build cannot find FFTW | `FFTW_ROOT` or module environment is missing |
-| CGNS build cannot find `cgns.mod` | `CGNS_ROOT`/HDF5-MPI not configured |
-| Multi-GPU run gives wrong communication behavior | `MPICH_GPU_SUPPORT_ENABLED=1` missing or rank/GPU binding wrong |
-| Runtime stops early or uses wrong decomposition | `lesgo.conf` `nproc` does not match MPI rank count |
-| Accidentally benchmarking I/O | `domain_calc`, plane output, or ATM output interval still active |
+The source uses broad `use mpi` imports for compatibility with Cray/NVHPC MPI
+module implementations that do not expose all nonblocking routines through an
+`only` list. This is intentional portability code, not a physics change.

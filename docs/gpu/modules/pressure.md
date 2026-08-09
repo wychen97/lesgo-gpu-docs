@@ -1,34 +1,24 @@
 # Pressure Solver
 
-The pressure solver is the most communication-sensitive part of the multi-GPU branch. The current implementation keeps the pressure equation and zero-mode handling intact while moving the dominant work to GPU kernels, cuFFT, and a pressure-specific transpose-Thomas path.
+The pressure path retains LESGO's pressure equation and tridiagonal method. Its
+GPU implementation combines cuFFT, device kernels, packed communication, and a
+GPU/MPI tridiagonal pipeline while preserving the outer z-slab decomposition.
 
-## Primary Files
+## Main source files
 
 | File | Role |
-|---|---|
-| `press_stag_array.f90` | Pressure RHS, pressure halos, cuFFT orchestration |
-| `tridag_array.f90` | Tridiagonal solve and pressure transpose-Thomas helper |
-| `mpi_transpose_mod.f90` | MPI transpose support |
+| --- | --- |
+| `press_stag_array.f90` | pressure RHS, FFT orchestration, pressure gradients |
+| `tridag_gpu.f90` | GPU/MPI tridiagonal pipeline |
+| `tridag_array.f90` | shared/reference tridiagonal support |
+| `mpi_transpose_mod.f90` | transpose communication support |
 
-## Implemented GPU Changes
+`LESGO_TRIDAG_GPU_MPI` can disable the GPU/MPI tridiagonal pipeline for a
+controlled comparison. `LESGO_TRIDAG_NCHUNK` changes its chunk count. These are
+the maintained pressure-path controls; older collections of per-kernel pressure
+switches are not part of the current source.
 
-| Area | Change |
-|---|---|
-| Forward/inverse FFT | cuFFT batched plans |
-| RHS assembly | GPU kernels with combined RHS halo path |
-| Tridiagonal solve | GPU Thomas path with cached coefficients |
-| Multi-GPU pressure | nproc==2 specialized pressure transpose-Thomas helper |
-| Output path | Direct Thomas output avoids a separate pack-out stage where possible |
-| Timing | Clean production timing separated from detailed diagnostic timing |
-
-## Retained Controls
-
-| Switch | Purpose |
-|---|---|
-| `LESGO_PRESS_RHS_HALO_COMBINED` | Fallback-safe control for combined RHS halo |
-| `LESGO_PRESS_TRANSPOSE_GENERIC` | Force old generic transpose helper |
-| `LESGO_PRESS_DIRECT_THOMAS_OUT` | Control direct Thomas output path |
-| `LESGO_PRESS_STAGE_TIMING` | Enable pressure stage timing |
-| `LESGO_PRESS_TRANSPOSE_TIMING` | Enable transpose helper timing |
-
-Do not replace Thomas with PCR, CR, or SPIKE-style solvers unless that is a deliberate new algorithmic project. The current production goal is to preserve the original Thomas solve and optimize ownership/layout around it.
+Pressure changes require multi-rank validation. At minimum, compare divergence,
+kinetic energy, pressure-gradient fields, and CPU/GPU continuation behavior.
+Timing must distinguish regular steps from steps that perform scheduled output
+or additional statistics.

@@ -1,15 +1,25 @@
 # Optional Modules
 
-The production validation path is ATM-focused, but the repository also contains optional modules controlled by CMake options and runtime configuration. The GPU porting policy is to GPU-enable loop-heavy timestep work, while allowing I/O and one-time setup to remain CPU-side when it does not affect timestep performance.
+Optional modules are compiled only when their CMake options are enabled. The
+public examples keep each feature isolated enough to show its build and runtime
+contract.
 
-| Module / Option | Main Files | GPU Policy |
-|---|---|---|
-| `USE_HIT` | `hit_inflow.f90`, `hit_inflow_gpu.f90` | GPU helper retained for runtime inflow work; setup can remain CPU |
-| `USE_SCALARS` | `scalars.f90` | Loop-heavy scalar transport paths should remain GPU-enabled when option is active |
-| `USE_TURBINES` | `turbines.f90`, `turbines_gpu.f90`, `turbine_indicator.f90` | Runtime turbine loops and indicator operations GPU-enabled where relevant; initialization may remain CPU |
-| `USE_LVLSET` | `level_set.f90`, `trees_*_ls.f90`, `level_set_base.f90` | Timestep-level level-set loops require GPU coverage; tree/fmask preprocessing is setup unless repeated |
-| `USE_CPS` | `concurrent_precursor.f90` | MPI/precursor coordination remains mostly communication/control logic |
-| `USE_CGNS` | `io.f90`, CGNS output paths | Output dependency and I/O path; not a timestep compute target |
-| `USE_DYN_TN` | Lagrangian dynamic model files | Dynamic timescale update should use existing GPU/Lagrangian paths if active |
+| Module | Options | Example | Current evidence |
+| --- | --- | --- | --- |
+| Scalar transport | `USE_SCALARS`, `USE_SCALARS_GPU` | `scalar_transport` | Passive and active CPU/GPU checks on Derecho |
+| Concurrent precursor | `USE_CPS` | `concurrent_precursor` | Velocity and scalar-coupled CPU/GPU checks on Derecho |
+| HIT input | `USE_HIT` | `inflow_and_forcing` | Compact CPU/GPU check on Derecho |
+| Shifted inflow | Case input/build variant | `inflow_and_forcing` | Compact CPU/GPU check on Derecho |
+| Coriolis and sponge | Case input/build variant | `inflow_and_forcing` | Compact CPU/GPU check on Derecho |
+| Level Set | `USE_LVLSET`, `USE_LVLSET_GPU` | `level_set_cubes` | Derecho and Delta CPU/GPU matrix and restart checks |
+| Dynamic SGS timescale | `USE_DYN_TN` | No standalone public case | Implemented; broader production validation remains appropriate |
+| CGNS output | `USE_CGNS` | No standalone public case | Host I/O feature; requires compatible CGNS/HDF5/MPI libraries |
 
-When enabling an optional module for a new case, build with the CMake option enabled, run a minimal smoke case, check the file audit for CPU-heavy uncovered loops, add GPU coverage only for repeated runtime cost, and document any intentionally CPU initialization or I/O loops.
+For GPU scalar transport, `USE_SCALARS=ON` alone is not enough;
+`USE_SCALARS_GPU=ON` and `USE_LES_GPU=ON` are also required. The same dependency
+applies to Level Set: `USE_LVLSET_GPU=ON` requires both `USE_LVLSET=ON` and
+`USE_LES_GPU=ON`.
+
+The compact optional-module cases establish compilation, execution, numerical
+parity, and restart behavior where applicable. They do not establish
+production-scale speedup or statistical convergence.
